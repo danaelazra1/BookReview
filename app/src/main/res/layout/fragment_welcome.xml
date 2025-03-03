@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="@drawable/welcome_image">
 
     <TextView
-        android:id="@+id/welcomeText"
+        android:id="@+id/welcomeTextView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome to Book Review"
-        android:textSize="24sp"
+        android:layout_height="60dp"
+        android:text="Welcome to BookReview!"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp"/>
+        android:textSize="28sp"
+        android:shadowColor="#070707"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:padding="10dp"
+        android:background="#48551E0B"
+        android:elevation="4dp"/>
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="280dp"
+        android:layout_height="60dp"
         android:text="Login"
-        android:layout_marginBottom="16dp"/>
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:backgroundTint="#E1541C09"
+        android:elevation="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="250dp"/>
 
     <Button
         android:id="@+id/signupButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sign Up"/>
-
-</LinearLayout>
+        android:layout_width="280dp"
+        android:layout_height="60dp"
+        android:text="Sign Up"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:backgroundTint="#E1541C09"
+        android:elevation="4dp"
+        android:layout_below="@id/loginButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"/>
+</RelativeLayout>
