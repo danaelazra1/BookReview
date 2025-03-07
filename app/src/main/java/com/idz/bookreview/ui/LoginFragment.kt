@@ -1,4 +1,4 @@
-package com.idz.bookreview
+package com.idz.bookreview.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.idz.bookreview.R
 
 class LoginFragment : Fragment() {
 
@@ -29,7 +30,6 @@ class LoginFragment : Fragment() {
         val loginButton = view.findViewById<Button>(R.id.loginButton)
         val registerRedirect = view.findViewById<TextView>(R.id.registerRedirect)
 
-        // כפתור התחברות
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
