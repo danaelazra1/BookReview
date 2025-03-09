@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "reviews")
 data class Review(
     @PrimaryKey
-    val id: String = "", // ✅ מזהה ייחודי של הביקורת (Firebase יצור UUID)
-    val bookTitle: String = "", // ✅ שם הספר שעליו נכתבה הביקורת
-    val reviewText: String = "", // ✅ תוכן הביקורת
-    val imageUrl: String? = null, // ✅ אופציונלי - תמונה (למשל כריכת הספר)
-    val timestamp: Long = System.currentTimeMillis(), // ✅ תאריך יצירת הביקורת
-    val userId: String = "" // ✅ מזהה המשתמש שכתב את הביקורת
+    val id: String = "",
+    val bookTitle: String = "",
+    val reviewText: String = "",
+    val imageUrl: String? = null,
+    val timestamp: Long = System.currentTimeMillis(),
+    val userId: String = ""
 )
