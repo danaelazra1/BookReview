@@ -5,35 +5,62 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="@drawable/welcome_image">
 
-    <ImageView
-        android:id="@+id/profileImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_profile"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/circle_background"/>
-
-    <TextView
-        android:id="@+id/userEmailTextView"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="-30dp">
+
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_profile"
+            android:scaleType="centerCrop"
+            android:background="@drawable/ic_profile"/>
+
+        <ImageView
+            android:id="@+id/cameraIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="-5dp"
+            android:layout_marginBottom="-5dp"
+            android:src="@drawable/ic_camera"
+            android:padding="8dp"
+            android:background="@android:drawable/checkbox_off_background"
+            android:contentDescription="CameraIcon"
+            android:visibility="visible"/>
+    </FrameLayout>
+
+    <EditText
+        android:id="@+id/userEmailTextView"
+        android:layout_width="250dp"
+        android:layout_height="52dp"
+        android:minHeight="52dp"
         android:text="Email"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textColor="@android:color/black"
-        android:layout_marginBottom="8dp"/>
+        android:background="#91857C7C"
+        android:gravity="start|center_vertical"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:focusable="false"/>
 
     <EditText
         android:id="@+id/usernameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter username"
+        android:layout_width="250dp"
+        android:layout_height="52dp"
+        android:minHeight="52dp"
+        android:hint="USERNAME"
         android:textSize="18sp"
-        android:padding="10dp"
-        android:background="@android:color/darker_gray"
+        android:padding="16dp"
+        android:background="#91857C7C"
         android:textColor="@android:color/black"
+        android:gravity="start|center_vertical"
         android:layout_marginBottom="16dp"/>
 
     <Button
@@ -42,6 +69,7 @@
         android:layout_height="wrap_content"
         android:text="Save Username"
         android:textSize="16sp"
+        android:backgroundTint="#D5541502"
         android:textColor="@android:color/white"
         android:layout_marginBottom="12dp"/>
 
@@ -51,7 +79,7 @@
         android:layout_height="wrap_content"
         android:text="Logout"
         android:textSize="16sp"
-        android:backgroundTint="#ff0099cc"
+        android:backgroundTint="#D13C0D01"
         android:textColor="@android:color/white"
         android:layout_marginBottom="12dp"/>
 
@@ -61,7 +89,18 @@
         android:layout_height="wrap_content"
         android:text="Delete Account"
         android:textSize="16sp"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:textColor="@android:color/white"/>
+        android:backgroundTint="#D8260701"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/deleteImageButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove Profile Image"
+        android:textSize="16sp"
+        android:backgroundTint="#E53935"
+        android:textColor="@android:color/white"
+        android:visibility="gone"/>
 
 </LinearLayout>
