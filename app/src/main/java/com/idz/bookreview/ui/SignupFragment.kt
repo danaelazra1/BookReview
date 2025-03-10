@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
 import com.idz.bookreview.model.User
 import com.idz.bookreview.model.dao.AppDatabase
@@ -34,7 +35,7 @@ class SignupFragment : Fragment() {
         val emailEditText = view.findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
         val confirmPasswordEditText = view.findViewById<EditText>(R.id.confirmPasswordEditText)
-        val usernameEditText = view.findViewById<EditText>(R.id.usernameEditText) // הוספת שם משתמש
+        val usernameEditText = view.findViewById<EditText>(R.id.usernameEditText)
         val signupButton = view.findViewById<Button>(R.id.signupButton)
 
         signupButton.setOnClickListener {
@@ -58,22 +59,37 @@ class SignupFragment : Fragment() {
                     if (task.isSuccessful) {
                         val firebaseUser = auth.currentUser
                         if (firebaseUser != null) {
-                            val newUser = User(username = username, email = email)
+                            val userId = firebaseUser.uid
 
-                            // שמירת המשתמש ב-ROOM
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                database.userDao().insertUser(newUser)
-                            }
+                            val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
-                            Toast.makeText(requireContext(), "Signup successful!", Toast.LENGTH_SHORT).show()
-                            findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
+                            val newUser = hashMapOf(
+                                "id" to userId,
+                                "username" to username,
+                                "email" to email,
+                                "profileImageUrl" to ""
+                            )
+
+                            userRef.set(newUser)
+                                .addOnSuccessListener {
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        database.userDao().insertUser(
+                                            User(id = userId, username = username, email = email)
+                                        )
+                                    }
+                                    Toast.makeText(requireContext(), "Signup successful!", Toast.LENGTH_SHORT).show()
+                                    findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(requireContext(), "Failed to save user data", Toast.LENGTH_SHORT).show()
+                                }
                         }
                     } else {
                         Toast.makeText(requireContext(), "Signup failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-        }
 
+        }
         return view
     }
 }

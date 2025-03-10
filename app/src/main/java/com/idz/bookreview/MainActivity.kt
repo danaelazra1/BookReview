@@ -8,6 +8,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         if (auth.currentUser == null) {
             navController.navigate(R.id.welcomeFragment)
+
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -40,5 +43,30 @@ class MainActivity : AppCompatActivity() {
                 View.VISIBLE
             }
         }
+        val db = Firebase.firestore
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val userRef = db.collection("users").document(userId)
+
+
+        val userData = hashMapOf(
+            "first" to "Ada",
+            "last" to "Lovelace",
+            "born" to 1815
+        )
+
+        userRef.get().addOnSuccessListener { document ->
+            if (!document.exists()) {
+                userRef.set(userData)
+                    .addOnSuccessListener {
+                        Log.d("TAG", "User profile created successfully!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("TAG", "Error creating user profile", e)
+                    }
+            }
+        }
+
+
     }
 }

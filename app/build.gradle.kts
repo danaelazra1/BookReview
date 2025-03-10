@@ -59,4 +59,13 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation (libs.androidx.room.ktx)
 
+    implementation (libs.cloudinary.android)
+
+    implementation (libs.retrofit)
+    implementation (libs.gson)
+    implementation (libs.converter.gson)
+
+    implementation (libs.glide)
+
+
 }
