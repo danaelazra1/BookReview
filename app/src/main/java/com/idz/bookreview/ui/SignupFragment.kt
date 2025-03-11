@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +27,7 @@ class SignupFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.fragment_signup, container, false)
 
         auth = FirebaseAuth.getInstance()
@@ -37,6 +38,11 @@ class SignupFragment : Fragment() {
         val confirmPasswordEditText = view.findViewById<EditText>(R.id.confirmPasswordEditText)
         val usernameEditText = view.findViewById<EditText>(R.id.usernameEditText)
         val signupButton = view.findViewById<Button>(R.id.signupButton)
+        val loginTextView = view.findViewById<TextView>(R.id.tvAlreadyHaveAccount)
+
+        loginTextView.setOnClickListener {
+            findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
+        }
 
         signupButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -58,9 +64,8 @@ class SignupFragment : Fragment() {
                 .addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {
                         val firebaseUser = auth.currentUser
-                        if (firebaseUser != null) {
-                            val userId = firebaseUser.uid
-
+                        firebaseUser?.let { user ->
+                            val userId = user.uid
                             val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
                             val newUser = hashMapOf(
@@ -88,8 +93,8 @@ class SignupFragment : Fragment() {
                         Toast.makeText(requireContext(), "Signup failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-
         }
+
         return view
     }
 }

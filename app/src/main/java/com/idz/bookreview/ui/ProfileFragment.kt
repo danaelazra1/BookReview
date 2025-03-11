@@ -255,55 +255,63 @@ class ProfileFragment : Fragment() {
 
     private fun deleteAccount() {
         val user = auth.currentUser ?: return
+        val userId = user.uid
+        val userRef = db.collection("users").document(userId)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val userInRoom = appDatabase.userDao().getUserById(user.uid)
-                println("Checking Room before deletion: $userInRoom")
-
-                if (userInRoom != null) {
-                    appDatabase.userDao().deleteUserById(user.uid)
-                    println("User deleted from Room: ${user.uid}")
-                } else {
-                    println("User not found in Room. Skipping Room deletion.")
-                }
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "User deleted from database", Toast.LENGTH_SHORT).show()
-                }
-
-                user.delete().addOnCompleteListener { deleteTask ->
-                    if (deleteTask.isSuccessful) {
-                        Toast.makeText(requireContext(), "User deleted successfully", Toast.LENGTH_SHORT).show()
-                        requireActivity().finish()
-                        startActivity(Intent(requireContext(), MainActivity::class.java))
-                    } else {
-                        Toast.makeText(requireContext(), "Error: ${deleteTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                userRef.update("profileImageUrl", "")
+                    .addOnSuccessListener {
+                        println("Profile image removed")
                     }
-                }
+                    .addOnFailureListener {
+                        println("Failed to remove profile image: ${it.message}")
+                    }
+
+                userRef.delete()
+                    .addOnSuccessListener {
+                        println("User deleted from Firestore: $userId")
+
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val userInRoom = appDatabase.userDao().getUserById(userId)
+                            if (userInRoom != null) {
+                                appDatabase.userDao().deleteUserById(userId)
+                                println("User deleted from Room: $userId")
+                            } else {
+                                println("User not found in Room. Skipping Room deletion.")
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "User deleted from database", Toast.LENGTH_SHORT).show()
+                            }
+
+                            user.delete().addOnCompleteListener { deleteTask ->
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    if (deleteTask.isSuccessful) {
+                                        Toast.makeText(requireContext(), "User deleted successfully", Toast.LENGTH_SHORT).show()
+                                        requireActivity().finish()
+                                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                                    } else {
+                                        Toast.makeText(requireContext(), "Error: ${deleteTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        println("Failed to delete user from Firestore: ${e.message}")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Error deleting user from Firestore", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Error deleting user: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-
-            deleteImageButton.setOnClickListener {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-                val userRef = db.collection("users").document(userId)
-
-                userRef.update("profileImageUrl", "")
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Profile image removed", Toast.LENGTH_SHORT).show()
-                        profileImageView.setImageResource(R.drawable.ic_profile)
-                        cameraIcon.visibility = View.VISIBLE
-                        deleteImageButton.visibility = View.GONE
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Error removing image", Toast.LENGTH_SHORT).show()
-                    }
-            }
-
         }
     }
+
 
 }
