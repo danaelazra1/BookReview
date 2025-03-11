@@ -11,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-
+        val db = Firebase.firestore
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
@@ -29,11 +28,36 @@ class MainActivity : AppCompatActivity() {
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController)
 
-        if (auth.currentUser == null) {
-            navController.navigate(R.id.welcomeFragment)
+        val user = auth.currentUser
 
+        if (user == null) {
+            // אם המשתמש לא מחובר – נשלח אותו למסך הכניסה
+            navController.navigate(R.id.welcomeFragment)
+        } else {
+            // אם המשתמש מחובר – נטען את הנתונים שלו מ-Firestore
+            val userId = user.uid
+            val userRef = db.collection("users").document(userId)
+
+            userRef.get().addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    val userData = hashMapOf(
+                        "id" to userId,
+                        "email" to user.email,
+                        "username" to "",
+                        "profileImageUrl" to ""
+                    )
+                    userRef.set(userData)
+                        .addOnSuccessListener {
+                            Log.d("TAG", "User profile created successfully!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("TAG", "Error creating user profile", e)
+                        }
+                }
+            }
         }
 
+        // הסתרת הניווט התחתון במסכי הכניסה
         navController.addOnDestinationChangedListener { _, destination, _ ->
             bottomNavigationView.visibility = if (destination.id == R.id.welcomeFragment ||
                 destination.id == R.id.loginFragment ||
@@ -43,30 +67,5 @@ class MainActivity : AppCompatActivity() {
                 View.VISIBLE
             }
         }
-        val db = Firebase.firestore
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        val userRef = db.collection("users").document(userId)
-
-
-        val userData = hashMapOf(
-            "first" to "Ada",
-            "last" to "Lovelace",
-            "born" to 1815
-        )
-
-        userRef.get().addOnSuccessListener { document ->
-            if (!document.exists()) {
-                userRef.set(userData)
-                    .addOnSuccessListener {
-                        Log.d("TAG", "User profile created successfully!")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("TAG", "Error creating user profile", e)
-                    }
-            }
-        }
-
-
     }
 }

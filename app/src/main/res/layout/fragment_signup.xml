@@ -87,5 +87,23 @@
         android:layout_below="@id/confirmPasswordEditText"
         android:layout_marginTop="30dp"/>
 
+    <TextView
+        android:id="@+id/tvAlreadyHaveAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/signupButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:text="Already have an account? Login here"
+        android:textColor="#24FBCB"
+        android:textIsSelectable="false"
+        android:textSize="20sp"
+        android:shadowColor="@color/black"
+        android:shadowDx="8"
+        android:shadowDy="8"
+        android:shadowRadius="12"
+        android:textStyle="bold" />
+
+
 
 </RelativeLayout>
