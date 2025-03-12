@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FAF5EE">
+
+    <EditText
+        android:id="@+id/bookNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Title" />
+
+    <EditText
+        android:id="@+id/bookDescriptionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Description"
+        android:inputType="textMultiLine"
+        android:minLines="2"/>
+
+    <EditText
+        android:id="@+id/reviewEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Write your review here"
+        android:inputType="textMultiLine"
+        android:minLines="4"/>
+
+
+    <ImageView
+        android:id="@+id/bookImageView"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_camera" />
+
+    <Button
+        android:id="@+id/selectImageButton"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Add Book Image"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0099CC"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/sendReviewButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Send Review"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:backgroundTint="#0099CC"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>
+
+
+
+
+

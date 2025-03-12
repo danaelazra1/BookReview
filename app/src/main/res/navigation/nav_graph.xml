@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.idz.bookreview.ui.WelcomeFragment"
-        android:label="WelcomeFragment" >
+        android:label="WelcomeFragment">
         <action
             android:id="@+id/action_welcomeFragment_to_signupFragment"
             app:destination="@id/signupFragment" />
@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.idz.bookreview.ui.LoginFragment"
-        android:label="LoginFragment" >
+        android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -31,7 +31,7 @@
     <fragment
         android:id="@+id/signupFragment"
         android:name="com.idz.bookreview.ui.SignupFragment"
-        android:label="SignupFragment" >
+        android:label="SignupFragment">
         <action
             android:id="@+id/action_signupFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -47,6 +47,9 @@
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_addReviewFragment"
+            app:destination="@id/addReviewFragment"/>
     </fragment>
 
     <fragment
@@ -58,4 +61,13 @@
         android:id="@+id/profileFragment"
         android:name="com.idz.bookreview.ui.ProfileFragment"
         android:label="ProfileFragment" />
+
+    <fragment
+        android:id="@+id/addReviewFragment"
+        android:name="com.idz.bookreview.fragments.AddReviewFragment"
+        android:label="Add review">
+        <action
+            android:id="@+id/action_addReviewFragment_to_homeFragment"
+            app:destination="@id/homeFragment"/>
+    </fragment>
 </navigation>

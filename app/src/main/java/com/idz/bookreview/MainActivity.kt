@@ -1,71 +1,49 @@
 package com.idz.bookreview
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.cloudinary.android.MediaManager
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = FirebaseAuth.getInstance()
-        val db = Firebase.firestore
+        // אתחול Cloudinary (אם טרם עשית)
+        val config = hashMapOf(
+            "cloud_name" to "YOUR_CLOUD_NAME",
+            "api_key" to "YOUR_API_KEY",
+            "api_secret" to "YOUR_API_SECRET"
+        )
+        MediaManager.init(this, config)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        NavigationUI.setupWithNavController(bottomNavigationView, navController)
-
-        val user = auth.currentUser
-
-        if (user == null) {
-            // אם המשתמש לא מחובר – נשלח אותו למסך הכניסה
-            navController.navigate(R.id.welcomeFragment)
-        } else {
-            // אם המשתמש מחובר – נטען את הנתונים שלו מ-Firestore
-            val userId = user.uid
-            val userRef = db.collection("users").document(userId)
-
-            userRef.get().addOnSuccessListener { document ->
-                if (!document.exists()) {
-                    val userData = hashMapOf(
-                        "id" to userId,
-                        "email" to user.email,
-                        "username" to "",
-                        "profileImageUrl" to ""
-                    )
-                    userRef.set(userData)
-                        .addOnSuccessListener {
-                            Log.d("TAG", "User profile created successfully!")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("TAG", "Error creating user profile", e)
-                        }
-                }
-            }
-        }
-
-        // הסתרת הניווט התחתון במסכי הכניסה
+        // מסתיר או מציג את סרגל הכלים התחתון בהתאם ל-Fragment הנוכחי
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            bottomNavigationView.visibility = if (destination.id == R.id.welcomeFragment ||
+            bottomNavigationView.visibility = if (
+                destination.id == R.id.welcomeFragment ||
                 destination.id == R.id.loginFragment ||
-                destination.id == R.id.signupFragment) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+                destination.id == R.id.signupFragment
+            ) View.GONE else View.VISIBLE
         }
+
+        // פתרון מרכזי לבעיה: שימוש נכון בניווט אוטומטי (setupWithNavController)
+        bottomNavigationView.setupWithNavController(navController)
     }
 }
+
+
+
+
+
+
+
