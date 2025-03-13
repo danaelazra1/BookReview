@@ -36,7 +36,8 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:src="@android:drawable/ic_menu_camera" />
+        android:src="@android:drawable/ic_menu_camera"
+        android:visibility="visible" />
 
     <Button
         android:id="@+id/selectImageButton"

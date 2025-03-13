@@ -36,10 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        // ✅ בדיקה אם המשתמש מחובר ל-Firebase, אם לא → ניווט למסך התחברות
+        // ✅ בדיקה אם המשתמש מחובר ל-Firebase, ואם לא - ניווט למסך התחברות
         val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            navController.navigate(R.id.loginFragment) // ✅ שולח את המשתמש לעמוד ההתחברות
+        if (user == null && savedInstanceState == null) { // לא שולחים שוב אם יש שמירת מצב
+            navController.navigate(R.id.loginFragment)
         }
 
         // מסתיר או מציג את סרגל הכלים התחתון בהתאם ל-Fragment הנוכחי
@@ -51,10 +51,37 @@ class MainActivity : AppCompatActivity() {
             ) View.GONE else View.VISIBLE
         }
 
-        // פתרון מרכזי לבעיה: שימוש נכון בניווט אוטומטי (setupWithNavController)
+        // ✅ פתרון לבעיה עם הניווט בתפריט התחתון
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.homeFragment -> {
+                    navController.navigate(R.id.homeFragment)
+                    true
+                }
+                R.id.searchFragment -> {
+                    navController.navigate(R.id.searchFragment)
+                    true
+                }
+                R.id.profileFragment -> {
+                    navController.navigate(R.id.profileFragment)
+                    true
+                }
+                R.id.addReviewFragment -> {
+                    // ✅ מחזירים אחורה ואז מנווטים מחדש - כדי לרענן את הדף
+                    navController.popBackStack()
+                    navController.navigate(R.id.addReviewFragment)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // ✅ הגדרת ניווט אוטומטי
         bottomNavigationView.setupWithNavController(navController)
     }
 }
+
+
 
 
 

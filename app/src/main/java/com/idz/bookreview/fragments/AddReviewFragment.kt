@@ -6,15 +6,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -37,6 +34,7 @@ import java.util.UUID
 class AddReviewFragment : Fragment() {
 
     private lateinit var bookNameEditText: EditText
+    private lateinit var bookDescriptionEditText: EditText
     private lateinit var reviewEditText: EditText
     private lateinit var sendReviewButton: Button
     private lateinit var selectImageButton: Button
@@ -61,11 +59,10 @@ class AddReviewFragment : Fragment() {
             Toast.makeText(requireContext(), "אין משתמש מחובר! חוזרים להתחברות...", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.loginFragment)
             return
-        } else {
-            Log.d("AuthCheck", "משתמש מחובר: ${user.email}")
         }
 
         bookNameEditText = view.findViewById(R.id.bookNameEditText)
+        bookDescriptionEditText = view.findViewById(R.id.bookDescriptionEditText)
         reviewEditText = view.findViewById(R.id.reviewEditText)
         sendReviewButton = view.findViewById(R.id.sendReviewButton)
         selectImageButton = view.findViewById(R.id.selectImageButton)
@@ -110,6 +107,7 @@ class AddReviewFragment : Fragment() {
         }
 
         val bookName = bookNameEditText.text.toString().trim()
+        val bookDescription = bookDescriptionEditText.text.toString().trim()
         val reviewText = reviewEditText.text.toString().trim()
         val userId = user.uid
 
@@ -118,7 +116,6 @@ class AddReviewFragment : Fragment() {
             return
         }
 
-        // ✅ הבטחת שהכפתור לא ינעל אחרי הלחיצה
         sendReviewButton.isEnabled = false
 
         if (imageUri != null) {
@@ -126,10 +123,7 @@ class AddReviewFragment : Fragment() {
                 .callback(object : UploadCallback {
                     override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                         val imageUrl = resultData["url"].toString()
-                        saveReview(userId, bookName, reviewText, imageUrl)
-
-                        // ✅ הפעלת הכפתור מחדש אחרי שמירה
-                        sendReviewButton.isEnabled = true
+                        saveReview(userId, bookName, bookDescription, reviewText, imageUrl)
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
@@ -144,13 +138,11 @@ class AddReviewFragment : Fragment() {
                     override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
                 }).dispatch()
         } else {
-            saveReview(userId, bookName, reviewText, null)
-            sendReviewButton.isEnabled = true
+            saveReview(userId, bookName, bookDescription, reviewText, null)
         }
     }
 
-
-    private fun saveReview(userId: String, bookName: String, reviewText: String, imageUrl: String?) {
+    private fun saveReview(userId: String, bookName: String, bookDescription: String, reviewText: String, imageUrl: String?) {
         val newReview = Review(
             id = UUID.randomUUID().toString(),
             bookTitle = bookName,
@@ -164,13 +156,20 @@ class AddReviewFragment : Fragment() {
             reviewViewModel.addReview(newReview)
             saveReviewToFirestore(newReview)
 
-            bookNameEditText.text.clear()
-            reviewEditText.text.clear()
-            imageUri = null
-            bookImageView.setImageResource(R.drawable.ic_placeholder)
+            clearInputFields()
+
+            sendReviewButton.isEnabled = true
+
             Toast.makeText(requireContext(), "הביקורת נוספה בהצלחה!", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.homeFragment)
         }
+    }
+
+    private fun clearInputFields() {
+        bookNameEditText.text.clear()
+        bookDescriptionEditText.text.clear() // ✅ מנקה את תיאור הספר
+        reviewEditText.text.clear()
+        imageUri = null
+        bookImageView.setImageResource(android.R.drawable.ic_menu_camera) // ✅ מחזיר את אייקון המצלמה
     }
 
     private fun saveReviewToFirestore(review: Review) {
@@ -188,6 +187,8 @@ class AddReviewFragment : Fragment() {
             }
     }
 }
+
+
 
 
 
