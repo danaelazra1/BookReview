@@ -10,7 +10,7 @@ import com.idz.bookreview.R
 import com.idz.bookreview.model.Review
 import com.squareup.picasso.Picasso
 
-class ReviewAdapter(private val reviewList: List<Review>) :
+class ReviewAdapter(private var reviewList: List<Review>) :
     RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     class ReviewViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -31,11 +31,22 @@ class ReviewAdapter(private val reviewList: List<Review>) :
         holder.reviewText.text = review.reviewText
         if (!review.imageUrl.isNullOrEmpty()) {
             Picasso.get().load(review.imageUrl).into(holder.bookImage)
+        } else {
+            holder.bookImage.setImageResource(R.drawable.ic_placeholder)
         }
     }
 
     override fun getItemCount(): Int {
         return reviewList.size
     }
+
+    // ✅ פונקציה שמאפשרת לעדכן את הרשימה
+    fun updateReviews(newReviews: List<Review>) {
+        reviewList = newReviews
+        notifyDataSetChanged()
+    }
 }
+
+
+
 

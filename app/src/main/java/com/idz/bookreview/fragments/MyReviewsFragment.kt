@@ -6,55 +6,63 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
 import com.idz.bookreview.adapter.ReviewAdapter
-import com.idz.bookreview.model.Review
+import com.idz.bookreview.model.AppDatabase
+import com.idz.bookreview.viewmodel.ReviewViewModel
+import com.idz.bookreview.viewmodel.ReviewViewModelFactory
+import com.google.firebase.auth.FirebaseAuth
 
 class MyReviewsFragment : Fragment() {
 
+    private lateinit var reviewViewModel: ReviewViewModel
     private lateinit var recyclerView: RecyclerView
-    private lateinit var reviewAdapter: ReviewAdapter
-    private val reviewList = mutableListOf<Review>()
+    private lateinit var adapter: ReviewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_my_reviews, container, false)
-
-        recyclerView = view.findViewById(R.id.recyclerViewMyReviews)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        reviewAdapter = ReviewAdapter(reviewList)
-        recyclerView.adapter = reviewAdapter
-
-        loadUserReviews()
-
-        return view
+        return inflater.inflate(R.layout.fragment_my_reviews, container, false)
     }
 
-    private fun loadUserReviews() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        FirebaseFirestore.getInstance().collection("reviews")
-            .whereEqualTo("userId", userId) // נטען רק את הביקורות של המשתמש הנוכחי
-            .orderBy("timestamp") // הצגת הביקורות לפי תאריך העלאה
-            .get()
-            .addOnSuccessListener { documents ->
-                reviewList.clear()
-                for (document in documents) {
-                    val review = document.toObject(Review::class.java)
-                    reviewList.add(review)
-                }
-                reviewAdapter.notifyDataSetChanged()
+        // ✅ אתחול ה-ViewModel בצורה נכונה
+        val reviewDao = AppDatabase.getDatabase(requireContext()).reviewDao()
+        reviewViewModel = ViewModelProvider(this, ReviewViewModelFactory(reviewDao))
+            .get(ReviewViewModel::class.java)
+
+        recyclerView = view.findViewById(R.id.recyclerViewReviews)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = ReviewAdapter(emptyList()) // יצירת אדפטר עם רשימה ריקה
+        recyclerView.adapter = adapter
+
+        // ✅ בדיקה אם המשתמש מחובר
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            Toast.makeText(requireContext(), "נא להתחבר כדי לראות את הביקורות שלך", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.loginFragment)
+            return
+        }
+
+        // ✅ הבאת כל הביקורות של המשתמש המחובר
+        val userId = user.uid
+        reviewViewModel.getReviewsByUser(userId).observe(viewLifecycleOwner) { reviews ->
+            reviews?.let {
+                adapter.updateReviews(it)
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load reviews", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 }
+
+
+
+
 
 

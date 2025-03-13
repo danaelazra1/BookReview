@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -17,53 +18,54 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
-import com.squareup.picasso.Picasso
+import com.idz.bookreview.model.Review
+import com.idz.bookreview.model.AppDatabase
+import com.idz.bookreview.viewmodel.ReviewViewModel
+import com.idz.bookreview.viewmodel.ReviewViewModelFactory
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddReviewFragment : Fragment() {
 
     private lateinit var bookNameEditText: EditText
-    private lateinit var bookDescriptionEditText: EditText
     private lateinit var reviewEditText: EditText
     private lateinit var sendReviewButton: Button
     private lateinit var selectImageButton: Button
     private lateinit var bookImageView: ImageView
 
     private var imageUri: Uri? = null
-    private val db = FirebaseFirestore.getInstance() // חיבור ל-Firestore
+    private val db = FirebaseFirestore.getInstance()
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            openGallery()
+    private val reviewViewModel: ReviewViewModel by activityViewModels {
+        ReviewViewModelFactory(AppDatabase.getDatabase(requireContext()).reviewDao())
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_add_review, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            Toast.makeText(requireContext(), "אין משתמש מחובר! חוזרים להתחברות...", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.loginFragment)
+            return
         } else {
-            Toast.makeText(requireContext(), "Permission denied!", Toast.LENGTH_SHORT).show()
+            Log.d("AuthCheck", "משתמש מחובר: ${user.email}")
         }
-    }
-
-    private val pickImageLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            imageUri = result.data?.data
-            bookImageView.setImageURI(imageUri)
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.fragment_add_review, container, false)
 
         bookNameEditText = view.findViewById(R.id.bookNameEditText)
-        bookDescriptionEditText = view.findViewById(R.id.bookDescriptionEditText)
         reviewEditText = view.findViewById(R.id.reviewEditText)
         sendReviewButton = view.findViewById(R.id.sendReviewButton)
         selectImageButton = view.findViewById(R.id.selectImageButton)
@@ -76,91 +78,120 @@ class AddReviewFragment : Fragment() {
         sendReviewButton.setOnClickListener {
             uploadReview()
         }
-
-        return view
     }
 
     private fun selectImageFromGallery() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
             openGallery()
         } else {
-            requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+            requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1001)
         }
     }
 
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImageLauncher.launch(intent)
+        startActivityForResult(intent, 1002)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1002 && resultCode == RESULT_OK) {
+            imageUri = data?.data
+            bookImageView.setImageURI(imageUri)
+        }
     }
 
     private fun uploadReview() {
-        val bookName = bookNameEditText.text.toString().trim()
-        val bookDescription = bookDescriptionEditText.text.toString().trim()
-        val reviewText = reviewEditText.text.toString().trim()
-
-        if (bookName.isEmpty() || reviewText.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            Toast.makeText(requireContext(), "יש להתחבר לפני הוספת ביקורת", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.loginFragment)
             return
         }
 
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val bookName = bookNameEditText.text.toString().trim()
+        val reviewText = reviewEditText.text.toString().trim()
+        val userId = user.uid
+
+        if (bookName.isEmpty() || reviewText.isEmpty()) {
+            Toast.makeText(requireContext(), "נא למלא את כל השדות", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // ✅ הבטחת שהכפתור לא ינעל אחרי הלחיצה
+        sendReviewButton.isEnabled = false
 
         if (imageUri != null) {
             MediaManager.get().upload(imageUri)
                 .callback(object : UploadCallback {
-                    override fun onStart(requestId: String) {}
-
-                    override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
-
                     override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                         val imageUrl = resultData["url"].toString()
-                        Toast.makeText(requireContext(), "Upload successful!", Toast.LENGTH_SHORT).show()
+                        saveReview(userId, bookName, reviewText, imageUrl)
 
-                        Picasso.get().load(imageUrl).into(bookImageView)
-
-                        saveReviewToFirestore(userId, bookName, bookDescription, reviewText, imageUrl)
+                        // ✅ הפעלת הכפתור מחדש אחרי שמירה
+                        sendReviewButton.isEnabled = true
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Toast.makeText(requireContext(), "Upload failed: ${error?.description}", Toast.LENGTH_SHORT).show()
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "שגיאה בהעלאת תמונה: ${error?.description}", Toast.LENGTH_SHORT).show()
+                        }
+                        sendReviewButton.isEnabled = true
                     }
 
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                    override fun onStart(requestId: String?) {}
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
                 }).dispatch()
         } else {
-            saveReviewToFirestore(userId, bookName, bookDescription, reviewText, null)
+            saveReview(userId, bookName, reviewText, null)
+            sendReviewButton.isEnabled = true
         }
     }
 
-    private fun saveReviewToFirestore(userId: String, bookTitle: String, bookDescription: String, reviewText: String, imageUrl: String?) {
-        val reviewData = hashMapOf(
-            "userId" to userId,  // שמירת userId כדי שהביקורת תהיה משויכת למשתמש
-            "bookTitle" to bookTitle,
-            "bookDescription" to bookDescription,
-            "reviewText" to reviewText,
-            "imageUrl" to (imageUrl ?: ""),
-            "timestamp" to System.currentTimeMillis()
+
+    private fun saveReview(userId: String, bookName: String, reviewText: String, imageUrl: String?) {
+        val newReview = Review(
+            id = UUID.randomUUID().toString(),
+            bookTitle = bookName,
+            reviewText = reviewText,
+            imageUrl = imageUrl,
+            timestamp = System.currentTimeMillis(),
+            userId = userId
         )
 
-        FirebaseFirestore.getInstance().collection("reviews")
-            .add(reviewData)
+        lifecycleScope.launch {
+            reviewViewModel.addReview(newReview)
+            saveReviewToFirestore(newReview)
+
+            bookNameEditText.text.clear()
+            reviewEditText.text.clear()
+            imageUri = null
+            bookImageView.setImageResource(R.drawable.ic_placeholder)
+            Toast.makeText(requireContext(), "הביקורת נוספה בהצלחה!", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.homeFragment)
+        }
+    }
+
+    private fun saveReviewToFirestore(review: Review) {
+        db.collection("reviews").document(review.id)
+            .set(review)
             .addOnSuccessListener {
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Review added successfully!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "הביקורת נשמרה ב-Firestore", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Failed to save review", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "שגיאה בשמירת ביקורת: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
 }
+
+
+
+
 
 
 
