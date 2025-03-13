@@ -65,13 +65,24 @@
 
     <Button
         android:id="@+id/saveUsernameButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
         android:text="Save Username"
         android:textSize="16sp"
-        android:backgroundTint="#D5541502"
+        android:backgroundTint="#795548"
         android:textColor="@android:color/white"
         android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/myReviewsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Reviews"
+        android:textColor="#FFFFFF"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#D5541502"
+        android:layout_marginTop="16dp"/>
 
     <Button
         android:id="@+id/logoutButton"

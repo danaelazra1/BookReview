@@ -14,11 +14,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // אתחול Cloudinary (אם טרם עשית)
+        // אתחול Cloudinary עם BuildConfig כדי להשתמש בפרטי הגדרות מ-gradle.properties
         val config = hashMapOf(
-            "cloud_name" to "YOUR_CLOUD_NAME",
-            "api_key" to "YOUR_API_KEY",
-            "api_secret" to "YOUR_API_SECRET"
+            "cloud_name" to BuildConfig.CLOUDINARY_CLOUD_NAME,
+            "api_key" to BuildConfig.CLOUDINARY_API_KEY,
+            "api_secret" to BuildConfig.CLOUDINARY_API_SECRET
         )
         MediaManager.init(this, config)
 
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
     }
 }
+
 
 
 
