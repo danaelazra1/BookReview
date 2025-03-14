@@ -54,13 +54,17 @@
 
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.idz.bookreview.ui.SearchFragment"
+        android:name="com.idz.bookreview.fragments.SearchFragment"
         android:label="SearchFragment" />
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.idz.bookreview.ui.ProfileFragment"
-        android:label="ProfileFragment" />
+        android:name="com.idz.bookreview.fragments.ProfileFragment"
+        android:label="ProfileFragment">
+        <action
+            android:id="@+id/action_profileFragment_to_myReviewsFragment"
+            app:destination="@id/myReviewsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/addReviewFragment"
@@ -74,14 +78,10 @@
     <fragment
         android:id="@+id/myReviewsFragment"
         android:name="com.idz.bookreview.fragments.MyReviewsFragment"
-        android:label="My Reviews" />
-
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.idz.bookreview.fragments.ProfileFragment"
-        android:label="ProfileFragment">
+        android:label="My Reviews">
         <action
-            android:id="@+id/action_profileFragment_to_myReviewsFragment"
-            app:destination="@id/myReviewsFragment" />
+            android:id="@+id/action_myReviewsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
+
 </navigation>

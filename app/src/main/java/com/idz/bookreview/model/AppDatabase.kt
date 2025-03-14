@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.*
 import com.idz.bookreview.model.dao.ReviewDao
 
-@Database(entities = [Review::class], version = 4, exportSchema = false) // ✅ שימי לב לגרסה המעודכנת
+@Database(entities = [Review::class], version = 5, exportSchema = false) // ✅ שימי לב לגרסה המעודכנת
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun reviewDao(): ReviewDao
