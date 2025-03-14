@@ -35,8 +35,10 @@ class BookAdapter(private var books: List<BookInfo>) : RecyclerView.Adapter<Book
         if (!imageUrl.isNullOrEmpty()) {
             Picasso.get()
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_book_placeholder) // תמונה זמנית בזמן הטעינה
-                .error(R.drawable.ic_book_placeholder) // תמונת ברירת מחדל אם יש שגיאה
+                .resize(100, 150) // הגבלת גודל התמונה
+                .centerCrop()
+                .placeholder(R.drawable.ic_book_placeholder)
+                .error(R.drawable.ic_book_placeholder)
                 .into(holder.bookImageView, object : com.squareup.picasso.Callback {
                     override fun onSuccess() {
                         Log.d("BookAdapter", " תמונה נטענה בהצלחה: $imageUrl")
