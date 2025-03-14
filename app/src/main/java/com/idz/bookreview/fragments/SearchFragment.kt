@@ -16,9 +16,9 @@ import com.idz.bookreview.adapter.BookAdapter
 import com.idz.bookreview.api.BookApiService
 import com.idz.bookreview.model.BookInfo
 import com.idz.bookreview.model.BookResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
+import android.util.Log
 
 class SearchFragment : Fragment() {
 
@@ -59,22 +59,34 @@ class SearchFragment : Fragment() {
 
     private fun searchBooks(query: String) {
         progressBar.visibility = View.VISIBLE
-        val apiService = BookApiService.create()
-        apiService.searchBooks(query).enqueue(object : Callback<BookResponse> {
-            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                progressBar.visibility = View.GONE
-                if (response.isSuccessful) {
-                    val books = response.body()?.items?.map { it.volumeInfo } ?: emptyList()
-                    bookAdapter.updateBooks(books)
-                } else {
-                    Toast.makeText(requireContext(), "שגיאה בעת הבאת התוצאות", Toast.LENGTH_SHORT).show()
-                }
-            }
+        val apiService = Retrofit.Builder()
+            .baseUrl("https://www.googleapis.com/books/v1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(BookApiService::class.java)
 
-            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), "שגיאה: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        apiService.searchBooks(query, "AIzaSyAPAw2GmnTI1vbql79Vgq9VApU9MsjMVJc")
+            .enqueue(object : Callback<BookResponse> {
+                override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                    progressBar.visibility = View.GONE
+                    if (response.isSuccessful) {
+                        val books = response.body()?.items?.map { it.volumeInfo } ?: emptyList()
+
+                        books.forEach { book ->
+                            Log.d("SearchFragment", "📘 ספר: ${book.title}, 🖼️ תמונה: ${book.imageLinks?.thumbnail}")
+                        }
+
+                        bookAdapter.updateBooks(books)
+                    } else {
+                        Toast.makeText(requireContext(), "שגיאה בעת הבאת התוצאות", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(requireContext(), "שגיאה: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }
+

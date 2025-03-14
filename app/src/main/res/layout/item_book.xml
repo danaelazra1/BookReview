@@ -32,10 +32,12 @@
         android:paddingTop="2dp"/>
 
     <ImageView
-        android:id="@+id/bookImage"
+        android:id="@+id/bookImageView"
         android:layout_width="100dp"
         android:layout_height="150dp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_book_placeholder"/>
+
+
 
 </LinearLayout>

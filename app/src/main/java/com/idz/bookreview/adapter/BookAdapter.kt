@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.idz.bookreview.R
 import com.idz.bookreview.model.BookInfo
 import com.squareup.picasso.Picasso
+import android.util.Log
 
 class BookAdapter(private var books: List<BookInfo>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
@@ -29,10 +30,25 @@ class BookAdapter(private var books: List<BookInfo>) : RecyclerView.Adapter<Book
         holder.authorTextView.text = book.authors?.joinToString(", ") ?: "לא ידוע"
 
         val imageUrl = book.imageLinks?.thumbnail
+        Log.d("BookAdapter", "📷 טוען תמונה: $imageUrl")
+
         if (!imageUrl.isNullOrEmpty()) {
-            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_book_placeholder).into(holder.bookImageView)
+            Picasso.get()
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_book_placeholder) // תמונה זמנית בזמן הטעינה
+                .error(R.drawable.ic_book_placeholder) // תמונת ברירת מחדל אם יש שגיאה
+                .into(holder.bookImageView, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        Log.d("BookAdapter", " תמונה נטענה בהצלחה: $imageUrl")
+                    }
+
+                    override fun onError(e: Exception?) {
+                        Log.e("BookAdapter", " שגיאה בטעינת תמונה: ${e?.message}")
+                    }
+                })
         } else {
             holder.bookImageView.setImageResource(R.drawable.ic_book_placeholder)
+            Log.d("BookAdapter", " לא נמצא URL לתמונה, טוען ברירת מחדל")
         }
     }
 
@@ -43,6 +59,7 @@ class BookAdapter(private var books: List<BookInfo>) : RecyclerView.Adapter<Book
         notifyDataSetChanged()
     }
 }
+
 
 
 
