@@ -33,7 +33,6 @@ class MyReviewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ✅ אתחול ה-ViewModel בצורה נכונה
         val reviewDao = AppDatabase.getDatabase(requireContext()).reviewDao()
         reviewViewModel = ViewModelProvider(this, ReviewViewModelFactory(reviewDao))
             .get(ReviewViewModel::class.java)
@@ -43,7 +42,6 @@ class MyReviewsFragment : Fragment() {
         adapter = ReviewAdapter(emptyList()) // יצירת אדפטר עם רשימה ריקה
         recyclerView.adapter = adapter
 
-        // ✅ בדיקה אם המשתמש מחובר
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             Toast.makeText(requireContext(), "נא להתחבר כדי לראות את הביקורות שלך", Toast.LENGTH_SHORT).show()
@@ -51,14 +49,13 @@ class MyReviewsFragment : Fragment() {
             return
         }
 
-        // ✅ הבאת כל הביקורות של המשתמש המחובר
         val userId = user.uid
         reviewViewModel.getReviewsByUser(userId).observe(viewLifecycleOwner) { reviews ->
             reviews?.let {
                 adapter.updateReviews(it)
             }
-        }
     }
+}
 }
 
 
