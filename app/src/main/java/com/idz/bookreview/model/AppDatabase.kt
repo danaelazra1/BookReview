@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.*
 import com.idz.bookreview.model.dao.ReviewDao
 
-@Database(entities = [Review::class], version = 5, exportSchema = false) // ✅ שימי לב לגרסה המעודכנת
+@Database(entities = [Review::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun reviewDao(): ReviewDao
@@ -19,7 +19,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "book_review_database"
-                ).fallbackToDestructiveMigration() // ✅ מאפשר מחיקה אם יש שינוי בגרסה
+                ).fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
