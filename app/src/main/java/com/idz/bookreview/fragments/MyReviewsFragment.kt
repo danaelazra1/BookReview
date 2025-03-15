@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +17,6 @@ import com.idz.bookreview.model.AppDatabase
 import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import android.widget.ImageButton
 
 class MyReviewsFragment : Fragment() {
 
@@ -38,9 +38,12 @@ class MyReviewsFragment : Fragment() {
         reviewViewModel = ViewModelProvider(this, ReviewViewModelFactory(reviewDao))
             .get(ReviewViewModel::class.java)
 
-        recyclerView = view.findViewById(R.id.recyclerViewMyReviews) // 🔹 בדוק שה-ID נכון
+        recyclerView = view.findViewById(R.id.recyclerViewMyReviews)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = ReviewAdapter(emptyList()) // יצירת אדפטר עם רשימה ריקה
+
+        adapter = ReviewAdapter(emptyList()) { review ->
+            reviewViewModel.toggleFavorite(review) // ✅ פונקציה שמוסיפה/מסירה ממועדפים
+        }
         recyclerView.adapter = adapter
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -50,7 +53,6 @@ class MyReviewsFragment : Fragment() {
             return
         }
 
-        // ✅ כפתור חזרה לפרופיל
         val btnBackToProfile: ImageButton = view.findViewById(R.id.btnBackToProfile)
         btnBackToProfile.setOnClickListener {
             findNavController().navigate(R.id.action_myReviewsFragment_to_profileFragment)

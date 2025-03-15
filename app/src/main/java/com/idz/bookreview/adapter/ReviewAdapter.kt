@@ -10,13 +10,16 @@ import com.idz.bookreview.R
 import com.idz.bookreview.model.Review
 import com.squareup.picasso.Picasso
 
-class ReviewAdapter(private var reviewList: List<Review>) :
-    RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
+class ReviewAdapter(
+    private var reviewList: List<Review>,
+    private val onFavoriteClick: (Review) -> Unit  // פונקציה ללחיצה על לב
+) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     class ReviewViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val bookTitle: TextView = view.findViewById(R.id.bookTitleTextView)
         val reviewText: TextView = view.findViewById(R.id.reviewTextView)
         val bookImage: ImageView = view.findViewById(R.id.bookImageView)
+        val favoriteButton: ImageView = view.findViewById(R.id.favoriteButton)  // כפתור לב
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -34,19 +37,22 @@ class ReviewAdapter(private var reviewList: List<Review>) :
         } else {
             holder.bookImage.setImageResource(R.drawable.ic_placeholder)
         }
+
+        // עדכון מצב הלב
+        holder.favoriteButton.setImageResource(
+            if (review.isFavorite) R.drawable.ic_check else R.drawable.ic_heart_outline
+        )
+
+        holder.favoriteButton.setOnClickListener {
+            onFavoriteClick(review)
+        }
     }
 
-    override fun getItemCount(): Int {
-        return reviewList.size
-    }
+    override fun getItemCount(): Int = reviewList.size
 
-    // ✅ פונקציה שמאפשרת לעדכן את הרשימה
     fun updateReviews(newReviews: List<Review>) {
         reviewList = newReviews
         notifyDataSetChanged()
     }
 }
-
-
-
 

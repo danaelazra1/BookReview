@@ -15,6 +15,16 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"/>
 
+    <TextView
+        android:id="@+id/titleMyReviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Reviews"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="8dp"
+        android:textColor="@android:color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMyReviews"

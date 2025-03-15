@@ -64,6 +64,9 @@
         <action
             android:id="@+id/action_profileFragment_to_myReviewsFragment"
             app:destination="@id/myReviewsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_favoritesFragment"
+            app:destination="@id/favoritesFragment"/> <!-- ✅ הוספת פעולה תקינה -->
     </fragment>
 
     <fragment
@@ -84,4 +87,15 @@
             app:destination="@id/profileFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.idz.bookreview.fragments.FavoritesFragment"
+        android:label="Favorites">
+        <action
+            android:id="@+id/action_favoritesFragment_to_profileFragment"
+            app:destination="@id/profileFragment"/>
+    </fragment>
+
+
 </navigation>
+
