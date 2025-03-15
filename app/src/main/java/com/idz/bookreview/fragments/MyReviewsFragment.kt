@@ -16,6 +16,7 @@ import com.idz.bookreview.model.AppDatabase
 import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
+import android.widget.ImageButton
 
 class MyReviewsFragment : Fragment() {
 
@@ -37,7 +38,7 @@ class MyReviewsFragment : Fragment() {
         reviewViewModel = ViewModelProvider(this, ReviewViewModelFactory(reviewDao))
             .get(ReviewViewModel::class.java)
 
-        recyclerView = view.findViewById(R.id.recyclerViewReviews)
+        recyclerView = view.findViewById(R.id.recyclerViewMyReviews) // 🔹 בדוק שה-ID נכון
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = ReviewAdapter(emptyList()) // יצירת אדפטר עם רשימה ריקה
         recyclerView.adapter = adapter
@@ -49,15 +50,20 @@ class MyReviewsFragment : Fragment() {
             return
         }
 
+        // ✅ כפתור חזרה לפרופיל
+        val btnBackToProfile: ImageButton = view.findViewById(R.id.btnBackToProfile)
+        btnBackToProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_myReviewsFragment_to_profileFragment)
+        }
+
         val userId = user.uid
         reviewViewModel.getReviewsByUser(userId).observe(viewLifecycleOwner) { reviews ->
             reviews?.let {
                 adapter.updateReviews(it)
             }
+        }
     }
 }
-}
-
 
 
 
