@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.MainActivity
 import com.idz.bookreview.R
-import com.idz.bookreview.model.dao.AppDatabase
 import com.idz.bookreview.model.networking.CloudinaryService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +22,10 @@ import okhttp3.RequestBody
 import android.graphics.Bitmap
 import android.view.View
 import com.bumptech.glide.Glide
+import com.idz.bookreview.model.AppDatabase
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+
 
 class ProfileFragment : Fragment() {
 
@@ -100,6 +103,15 @@ class ProfileFragment : Fragment() {
         }
 
         return view
+    }
+
+    private fun hideKeyboard(view: View) {
+        try {
+            val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun loadUserData(userId: String) {

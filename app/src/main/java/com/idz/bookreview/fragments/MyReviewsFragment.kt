@@ -60,9 +60,13 @@ class MyReviewsFragment : Fragment() {
 
         val userId = user.uid
         reviewViewModel.getReviewsByUser(userId).observe(viewLifecycleOwner) { reviews ->
-            reviews?.let {
-                adapter.updateReviews(it)
+            val updatedReviews = reviews.map { review ->
+                review.copy(
+                    bookDescription = review.bookDescription ?: "תיאור לא זמין",
+                    imageUrl = review.imageUrl ?: "https://example.com/default-image.jpg"
+                )
             }
+            adapter.updateReviews(updatedReviews)
         }
     }
 }

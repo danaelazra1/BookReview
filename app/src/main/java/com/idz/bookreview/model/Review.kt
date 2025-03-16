@@ -10,8 +10,9 @@ data class Review(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val bookTitle: String = "",
+    val bookDescription: String,
     val reviewText: String = "",
-    val imageUrl: String? = null,
+    val imageUrl: String?,
     var isFavorite: Boolean = false,
     val timestamp: Long = System.currentTimeMillis(),
     val userId: String = ""

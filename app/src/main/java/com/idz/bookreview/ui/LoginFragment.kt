@@ -12,6 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.idz.bookreview.R
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+
 
 class LoginFragment : Fragment() {
 
@@ -55,5 +58,14 @@ class LoginFragment : Fragment() {
         }
 
         return view
+    }
+
+    private fun hideKeyboard(view: View) {
+        try {
+            val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

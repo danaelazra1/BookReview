@@ -17,6 +17,7 @@ class ReviewAdapter(
 
     class ReviewViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val bookTitle: TextView = view.findViewById(R.id.bookTitleTextView)
+        val bookDescription: TextView = view.findViewById(R.id.bookDescriptionTextView)
         val reviewText: TextView = view.findViewById(R.id.reviewTextView)
         val bookImage: ImageView = view.findViewById(R.id.bookImageView)
         val favoriteButton: ImageView = view.findViewById(R.id.favoriteButton)  // כפתור לב
@@ -30,8 +31,11 @@ class ReviewAdapter(
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
         val review = reviewList[position]
+
         holder.bookTitle.text = review.bookTitle
+        holder.bookDescription.text = review.bookDescription
         holder.reviewText.text = review.reviewText
+
         if (!review.imageUrl.isNullOrEmpty()) {
             Picasso.get().load(review.imageUrl).into(holder.bookImage)
         } else {

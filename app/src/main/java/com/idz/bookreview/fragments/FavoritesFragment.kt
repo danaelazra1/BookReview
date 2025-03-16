@@ -53,10 +53,16 @@ class FavoritesFragment : Fragment() {
 
         // ✅ טעינת הביקורות המועדפות
         reviewViewModel.favoriteReviews.observe(viewLifecycleOwner) { reviews ->
-            if (reviews.isEmpty()) {
+            val updatedReviews = reviews.map { review ->
+                review.copy(
+                    bookDescription = review.bookDescription ?: "תיאור לא זמין",
+                    imageUrl = review.imageUrl ?: "https://example.com/default-image.jpg"
+                )
+            }
+            if (updatedReviews.isEmpty()) {
                 Toast.makeText(requireContext(), "אין ביקורות מועדפות", Toast.LENGTH_SHORT).show()
             }
-            adapter.updateReviews(reviews)
+            adapter.updateReviews(updatedReviews)
         }
     }
 }

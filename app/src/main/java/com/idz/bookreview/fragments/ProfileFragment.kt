@@ -12,10 +12,11 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
-import com.idz.bookreview.model.dao.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.idz.bookreview.model.AppDatabase
+
 
 class ProfileFragment : Fragment() {
 

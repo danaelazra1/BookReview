@@ -45,7 +45,13 @@ class HomeFragment : Fragment() {
         recyclerView.adapter = adapter
 
         reviewViewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
-            adapter.updateReviews(reviews)
+            val updatedReviews = reviews.map { review ->
+                review.copy(
+                    bookDescription = review.bookDescription ?: "תיאור לא זמין",
+                    imageUrl = review.imageUrl ?: "https://example.com/default-image.jpg"
+                )
+            }
+            adapter.updateReviews(updatedReviews)
         }
     }
 }
