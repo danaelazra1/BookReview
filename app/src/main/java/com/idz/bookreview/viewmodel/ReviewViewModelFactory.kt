@@ -3,12 +3,16 @@ package com.idz.bookreview.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.idz.bookreview.model.dao.ReviewDao
+import com.idz.bookreview.model.networking.FirebaseService
 
-class ReviewViewModelFactory(private val reviewDao: ReviewDao) : ViewModelProvider.Factory {
+class ReviewViewModelFactory(
+    private val reviewDao: ReviewDao,
+    private val firebaseService: FirebaseService // ✅ הוספנו את FirebaseService
+) : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ReviewViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ReviewViewModel(reviewDao) as T
+            return ReviewViewModel(reviewDao, firebaseService) as T // ✅ מעבירים את FirebaseService
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

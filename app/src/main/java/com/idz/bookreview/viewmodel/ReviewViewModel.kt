@@ -7,8 +7,12 @@ import com.idz.bookreview.model.Review
 import com.idz.bookreview.model.dao.ReviewDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.idz.bookreview.model.networking.FirebaseService
 
-class ReviewViewModel(private val reviewDao: ReviewDao) : ViewModel() {
+class ReviewViewModel(
+    private val reviewDao: ReviewDao,
+    private val firebaseService: FirebaseService // ✅ הוספנו את FirebaseService
+) : ViewModel() {
 
     val allReviews: LiveData<List<Review>> = reviewDao.getAllReviews()
     val favoriteReviews: LiveData<List<Review>> = reviewDao.getFavoriteReviewsLive()
@@ -25,16 +29,16 @@ class ReviewViewModel(private val reviewDao: ReviewDao) : ViewModel() {
 
     fun addReview(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {
-            reviewDao.insertReview(review) // ✅ שינוי השם לשם הנכון
+            reviewDao.insertReview(review) // שמירה במסד הנתונים המקומי
+            firebaseService.addReviewToFirestore(review) // ✅ שמירה ב-Firestore
         }
     }
 
     fun getReviewsByUser(userId: String): LiveData<List<Review>> {
         return reviewDao.getReviewsByUser(userId)
     }
-
-
 }
+
 
 
 

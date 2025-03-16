@@ -16,6 +16,7 @@ import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import android.widget.ImageButton
 import androidx.navigation.fragment.findNavController
+import com.idz.bookreview.model.networking.FirebaseService
 
 class FavoritesFragment : Fragment() {
 
@@ -23,7 +24,10 @@ class FavoritesFragment : Fragment() {
     private lateinit var adapter: ReviewAdapter
 
     private val reviewViewModel: ReviewViewModel by activityViewModels {
-        ReviewViewModelFactory(AppDatabase.getDatabase(requireContext()).reviewDao())
+        ReviewViewModelFactory(
+            AppDatabase.getDatabase(requireContext()).reviewDao(),
+            FirebaseService() // ✅ עכשיו הוא מועבר כמו שצריך
+        )
     }
 
     override fun onCreateView(

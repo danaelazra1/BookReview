@@ -17,12 +17,20 @@ import com.idz.bookreview.model.AppDatabase
 import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
+import com.idz.bookreview.model.networking.FirebaseService // ודא שהייבוא קיים
+import androidx.fragment.app.activityViewModels
 
 class MyReviewsFragment : Fragment() {
 
-    private lateinit var reviewViewModel: ReviewViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ReviewAdapter
+
+    private val reviewViewModel: ReviewViewModel by activityViewModels {
+        ReviewViewModelFactory(
+            AppDatabase.getDatabase(requireContext()).reviewDao(),
+            FirebaseService() // העבר כאן את ה-FirebaseService
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,10 +41,6 @@ class MyReviewsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val reviewDao = AppDatabase.getDatabase(requireContext()).reviewDao()
-        reviewViewModel = ViewModelProvider(this, ReviewViewModelFactory(reviewDao))
-            .get(ReviewViewModel::class.java)
 
         recyclerView = view.findViewById(R.id.recyclerViewMyReviews)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

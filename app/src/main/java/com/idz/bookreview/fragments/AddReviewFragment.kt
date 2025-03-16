@@ -28,6 +28,8 @@ import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.UUID
+import com.idz.bookreview.model.networking.FirebaseService
+
 
 class AddReviewFragment : Fragment() {
 
@@ -42,7 +44,10 @@ class AddReviewFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
 
     private val reviewViewModel: ReviewViewModel by activityViewModels {
-        ReviewViewModelFactory(AppDatabase.getDatabase(requireContext()).reviewDao())
+        ReviewViewModelFactory(
+            AppDatabase.getDatabase(requireContext()).reviewDao(),
+            FirebaseService() // ✅ עכשיו FirebaseService מועבר כמו שצריך
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -152,13 +157,9 @@ class AddReviewFragment : Fragment() {
         )
 
         lifecycleScope.launch {
-            reviewViewModel.addReview(newReview)
-            saveReviewToFirestore(newReview)
-
+            reviewViewModel.addReview(newReview) // ✅ עכשיו הביקורת נשמרת גם ב-Firestore
             clearInputFields()
-
             sendReviewButton.isEnabled = true
-
             Toast.makeText(requireContext(), "הביקורת נוספה בהצלחה!", Toast.LENGTH_SHORT).show()
         }
     }
