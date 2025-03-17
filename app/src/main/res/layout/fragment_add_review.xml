@@ -28,26 +28,32 @@
         android:inputType="textMultiLine"
         android:minLines="4"/>
 
-
     <ImageView
         android:id="@+id/bookImageView"
-        android:layout_width="80dp"
-        android:layout_height="100dp"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
         android:layout_marginTop="16dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:src="@android:drawable/ic_menu_camera"
-        android:visibility="visible" />
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
     <Button
-        android:id="@+id/selectImageButton"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Add Book Image"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#0099CC"
+        android:id="@+id/selectFromCloudButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select an image from Cloudinary"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#0099CC"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/sendReviewButton"
@@ -61,8 +67,6 @@
         android:layout_marginTop="20dp" />
 
 </LinearLayout>
-
-
 
 
 
