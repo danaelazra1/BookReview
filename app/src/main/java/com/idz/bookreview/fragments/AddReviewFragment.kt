@@ -43,7 +43,6 @@ import com.idz.bookreview.model.CloudinaryImage
 import com.idz.bookreview.network.CloudinaryApi
 import com.idz.bookreview.adapter.ImageAdapter
 
-
 class AddReviewFragment : Fragment() {
 
     private lateinit var bookNameEditText: EditText
@@ -87,7 +86,6 @@ class AddReviewFragment : Fragment() {
         bookImageView = view.findViewById(R.id.bookImageView)
         progressBar = view.findViewById(R.id.progressBar)
 
-
         selectFromCloudButton.setOnClickListener {
             fetchUploadedImages()
         }
@@ -116,7 +114,6 @@ class AddReviewFragment : Fragment() {
         }
     }
 
-
     private fun uploadReview() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -138,7 +135,6 @@ class AddReviewFragment : Fragment() {
         sendReviewButton.isEnabled = false
         saveReview(userId, bookName, bookDescription, reviewText, uploadedImageUrl)
     }
-
 
     private fun openFilePicker() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -220,7 +216,6 @@ class AddReviewFragment : Fragment() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-
         val api = retrofit.create(CloudinaryApi::class.java)
 
         api.getImages().enqueue(object : Callback<CloudinaryResponse> {
@@ -242,12 +237,9 @@ class AddReviewFragment : Fragment() {
         })
     }
 
-
-
-
     private fun showCloudinaryImagePicker(imageUrls: List<String>) {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("בחר תמונה מ-Cloudinary")
+        builder.setTitle("Select Image From Cloudinary")
 
         val listView = ListView(requireContext())
         val adapter = ImageAdapter(requireContext(), imageUrls)
@@ -256,7 +248,6 @@ class AddReviewFragment : Fragment() {
 
         builder.setNegativeButton("ביטול", null)
 
-        // הגדרת המשתנה dialog לפני קריאת setOnItemClickListener
         val dialog = builder.create()
 
         listView.setOnItemClickListener { _, _, position, _ ->

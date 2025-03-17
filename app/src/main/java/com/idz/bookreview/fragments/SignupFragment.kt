@@ -80,12 +80,12 @@ class SignupFragment : Fragment() {
                                 .addOnSuccessListener {
                                     Log.d("SignupFragment", "✅ User saved successfully in Firestore: $userId")
                                 }
-                                .addOnFailureListener { exception ->  // 🔹 תיקון כאן
-                                    Log.e("SignupFragment", "❌ Failed to save user in Firestore", exception)
+                                .addOnFailureListener { exception ->
+                                    Log.e("SignupFragment", " Failed to save user in Firestore", exception)
                                 }
                         }
                     } else {
-                        Log.e("SignupFragment", "❌ Signup failed: ${task.exception?.message}")
+                        Log.e("SignupFragment", " Signup failed: ${task.exception?.message}")
                     }
                 }
 

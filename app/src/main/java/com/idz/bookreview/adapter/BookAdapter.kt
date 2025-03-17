@@ -30,12 +30,12 @@ class BookAdapter(private var books: List<BookInfo>) : RecyclerView.Adapter<Book
         holder.authorTextView.text = book.authors?.joinToString(", ") ?: "לא ידוע"
 
         val imageUrl = book.imageLinks?.thumbnail
-        Log.d("BookAdapter", "📷 טוען תמונה: $imageUrl")
+        Log.d("BookAdapter", " טוען תמונה: $imageUrl")
 
         if (!imageUrl.isNullOrEmpty()) {
             Picasso.get()
                 .load(imageUrl)
-                .resize(100, 150) // הגבלת גודל התמונה
+                .resize(100, 150)
                 .centerCrop()
                 .placeholder(R.drawable.ic_book_placeholder)
                 .error(R.drawable.ic_book_placeholder)

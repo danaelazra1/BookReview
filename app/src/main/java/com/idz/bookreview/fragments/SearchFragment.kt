@@ -34,7 +34,6 @@ class SearchFragment : Fragment() {
     ): View {
         return inflater.inflate(R.layout.fragment_search, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -56,7 +55,6 @@ class SearchFragment : Fragment() {
             }
         }
     }
-
     private fun searchBooks(query: String) {
         progressBar.visibility = View.VISIBLE
         val apiService = Retrofit.Builder()
@@ -73,7 +71,7 @@ class SearchFragment : Fragment() {
                         val books = response.body()?.items?.map { it.volumeInfo } ?: emptyList()
 
                         books.forEach { book ->
-                            Log.d("SearchFragment", "📘 ספר: ${book.title}, 🖼️ תמונה: ${book.imageLinks?.thumbnail}")
+                            Log.d("SearchFragment", " ספר: ${book.title},  תמונה: ${book.imageLinks?.thumbnail}")
                         }
 
                         bookAdapter.updateBooks(books)

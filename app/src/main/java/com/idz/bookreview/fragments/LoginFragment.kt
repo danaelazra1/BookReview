@@ -13,7 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.idz.bookreview.R
 
 class LoginFragment : Fragment() {
-
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
@@ -33,7 +32,6 @@ class LoginFragment : Fragment() {
         passwordEditText = view.findViewById(R.id.passwordEditText)
         loginButton = view.findViewById(R.id.loginButton)
 
-        // 🔹 אם המשתמש כבר מחובר, להעביר אותו אוטומטית לדף הבית
         if (auth.currentUser != null) {
             findNavController().navigate(R.id.homeFragment)
         }

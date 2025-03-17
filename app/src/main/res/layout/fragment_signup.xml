@@ -104,6 +104,4 @@
         android:shadowRadius="12"
         android:textStyle="bold" />
 
-
-
 </RelativeLayout>

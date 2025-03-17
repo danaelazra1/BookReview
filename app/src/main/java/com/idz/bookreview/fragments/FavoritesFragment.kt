@@ -26,7 +26,7 @@ class FavoritesFragment : Fragment() {
     private val reviewViewModel: ReviewViewModel by activityViewModels {
         ReviewViewModelFactory(
             AppDatabase.getDatabase(requireContext()).reviewDao(),
-            FirebaseService() // ✅ עכשיו הוא מועבר כמו שצריך
+            FirebaseService()
         )
     }
 
@@ -43,19 +43,19 @@ class FavoritesFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewFavorites)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // ✅ הוספת כפתור חזרה לפרופיל
+        // הוספת כפתור חזרה לפרופיל
         val btnBackToProfile: ImageButton = view.findViewById(R.id.btnBackToProfile)
         btnBackToProfile.setOnClickListener {
             findNavController().navigate(R.id.action_favoritesFragment_to_profileFragment)
         }
 
-        // ✅ הגדרת ה-Adapter עם פונקציה להוספה/הסרה ממועדפים
+        //  הגדרת ה-Adapter עם פונקציה להוספה/הסרה ממועדפים
         adapter = ReviewAdapter(emptyList()) { review ->
             reviewViewModel.toggleFavorite(review)
         }
         recyclerView.adapter = adapter
 
-        // ✅ טעינת הביקורות המועדפות
+        //  טעינת הביקורות המועדפות
         reviewViewModel.favoriteReviews.observe(viewLifecycleOwner) { reviews ->
             val updatedReviews = reviews.map { review ->
                 review.copy(

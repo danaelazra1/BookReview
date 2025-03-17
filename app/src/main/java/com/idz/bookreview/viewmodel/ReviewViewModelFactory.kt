@@ -7,12 +7,12 @@ import com.idz.bookreview.model.networking.FirebaseService
 
 class ReviewViewModelFactory(
     private val reviewDao: ReviewDao,
-    private val firebaseService: FirebaseService // ✅ הוספנו את FirebaseService
+    private val firebaseService: FirebaseService
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ReviewViewModel::class.java)) {
-            return ReviewViewModel(reviewDao, firebaseService) as T // ✅ מעבירים את FirebaseService
+            return ReviewViewModel(reviewDao, firebaseService) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

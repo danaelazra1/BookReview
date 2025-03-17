@@ -46,7 +46,7 @@ class MyReviewsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = ReviewAdapter(emptyList()) { review ->
-            reviewViewModel.toggleFavorite(review) // ✅ פונקציה שמוסיפה/מסירה ממועדפים
+            reviewViewModel.toggleFavorite(review) //  פונקציה שמוסיפה/מסירה ממועדפים
         }
         recyclerView.adapter = adapter
 

@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // אתחול Cloudinary עם BuildConfig כדי להשתמש בפרטי הגדרות מ-gradle.properties
         val config = hashMapOf(
             "cloud_name" to BuildConfig.CLOUDINARY_CLOUD_NAME,
             "api_key" to BuildConfig.CLOUDINARY_API_KEY,
@@ -31,18 +30,16 @@ class MainActivity : AppCompatActivity() {
         if (navHostFragment != null) {
             navController = navHostFragment.navController
         } else {
-            return // אם ה-NavHostFragment לא נטען כראוי, לא להמשיך
+            return
         }
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        // ✅ בדיקה אם המשתמש מחובר ל-Firebase, ואם לא - ניווט למסך התחברות
         val user = FirebaseAuth.getInstance().currentUser
-        if (user == null && savedInstanceState == null) { // לא שולחים שוב אם יש שמירת מצב
+        if (user == null && savedInstanceState == null) {
             navController.navigate(R.id.loginFragment)
         }
 
-        // מסתיר או מציג את סרגל הכלים התחתון בהתאם ל-Fragment הנוכחי
         navController.addOnDestinationChangedListener { _, destination, _ ->
             bottomNavigationView.visibility = if (
                 destination.id == R.id.welcomeFragment ||
@@ -51,7 +48,6 @@ class MainActivity : AppCompatActivity() {
             ) View.GONE else View.VISIBLE
         }
 
-        // ✅ פתרון לבעיה עם הניווט בתפריט התחתון
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.homeFragment -> {
@@ -67,7 +63,6 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.addReviewFragment -> {
-                    // ✅ מחזירים אחורה ואז מנווטים מחדש - כדי לרענן את הדף
                     navController.popBackStack()
                     navController.navigate(R.id.addReviewFragment)
                     true
@@ -75,8 +70,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
-        // ✅ הגדרת ניווט אוטומטי
         bottomNavigationView.setupWithNavController(navController)
     }
 }

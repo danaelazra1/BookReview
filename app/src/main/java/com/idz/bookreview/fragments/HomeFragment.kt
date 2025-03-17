@@ -17,15 +17,12 @@ import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import com.idz.bookreview.model.networking.FirebaseService
 
 class HomeFragment : Fragment() {
-
-    // אתחול המשתנה ברמת המחלקה
     private val reviewViewModel: ReviewViewModel by activityViewModels {
         ReviewViewModelFactory(
             AppDatabase.getDatabase(requireContext()).reviewDao(),
             FirebaseService()
         )
     }
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ReviewAdapter
 

@@ -11,7 +11,7 @@ import com.idz.bookreview.model.networking.FirebaseService
 
 class ReviewViewModel(
     private val reviewDao: ReviewDao,
-    private val firebaseService: FirebaseService // ✅ הוספנו את FirebaseService
+    private val firebaseService: FirebaseService
 ) : ViewModel() {
 
     val allReviews: LiveData<List<Review>> = reviewDao.getAllReviews()
@@ -30,7 +30,7 @@ class ReviewViewModel(
     fun addReview(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {
             reviewDao.insertReview(review) // שמירה במסד הנתונים המקומי
-            firebaseService.addReviewToFirestore(review) // ✅ שמירה ב-Firestore
+            firebaseService.addReviewToFirestore(review) //  שמירה ב-Firestore
         }
     }
 

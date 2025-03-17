@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import com.idz.bookreview.model.AppDatabase
 
-
 class ProfileFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
