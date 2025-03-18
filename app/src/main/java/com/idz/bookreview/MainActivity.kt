@@ -23,7 +23,12 @@ class MainActivity : AppCompatActivity() {
             "336195937131691" to BuildConfig.CLOUDINARY_API_KEY,
             "SaBVAU7-nDyK21XJulN76xExl84" to BuildConfig.CLOUDINARY_API_SECRET
         )
-        MediaManager.init(this, config)
+
+        try {
+            MediaManager.get()
+        } catch (e: Exception) {
+            MediaManager.init(this, config)
+        }
 
         // הגדרת הניווט
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
@@ -37,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null && savedInstanceState == null) {
-            navController.navigate(R.id.loginFragment)
+            navController.navigate(R.id.welcomeFragment)
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
