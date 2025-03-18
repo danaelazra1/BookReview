@@ -19,9 +19,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val config = hashMapOf(
-            "cloud_name" to BuildConfig.CLOUDINARY_CLOUD_NAME,
-            "api_key" to BuildConfig.CLOUDINARY_API_KEY,
-            "api_secret" to BuildConfig.CLOUDINARY_API_SECRET
+            "df8odu4s4" to BuildConfig.CLOUDINARY_CLOUD_NAME,
+            "336195937131691" to BuildConfig.CLOUDINARY_API_KEY,
+            "SaBVAU7-nDyK21XJulN76xExl84" to BuildConfig.CLOUDINARY_API_SECRET
         )
         MediaManager.init(this, config)
 
