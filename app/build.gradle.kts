@@ -67,5 +67,5 @@ dependencies {
 
     implementation (libs.glide)
 
-
 }
+

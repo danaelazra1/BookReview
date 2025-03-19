@@ -1,4 +1,4 @@
-package com.idz.bookreview.model.networking
+package com.idz.bookreview.api
 
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient

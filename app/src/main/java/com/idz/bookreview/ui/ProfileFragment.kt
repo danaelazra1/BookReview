@@ -13,7 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.MainActivity
 import com.idz.bookreview.R
 import com.idz.bookreview.model.dao.AppDatabase
-import com.idz.bookreview.model.networking.CloudinaryService
+import com.idz.bookreview.api.CloudinaryService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

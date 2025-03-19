@@ -4,14 +4,61 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center_horizontal">
 
-    <TextView
+    <!-- שדה טקסט לחיפוש -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Search for a book..."
+        android:textColorHint="#000000"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@android:color/white"
+        android:layout_marginBottom="8dp"
+        android:elevation="2dp"/>
+
+    <!-- כפתור חיפוש -->
+    <Button
+        android:id="@+id/searchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Search Screen"
-        android:textSize="24sp"
+        android:text="Search"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#E1541C09"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="3dp"/>
+
+    <!-- פס טעינה -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/noResultsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No results found"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"/>
+
+    <!-- רשימת הספרים -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewBooks"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"/>
 </LinearLayout>
