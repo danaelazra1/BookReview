@@ -17,7 +17,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
+
 
     buildTypes {
         release {
@@ -66,6 +69,12 @@ dependencies {
     implementation (libs.converter.gson)
 
     implementation (libs.glide)
+    implementation(libs.picasso)
+
+
+    // OkHttp3 - חשוב בשביל העלאת תמונות לקלאודינרי
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 
 }
 

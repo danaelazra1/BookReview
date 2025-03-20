@@ -9,6 +9,12 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/addReviewFragment"
+        android:icon="@drawable/ic_add"
+        android:title="Add Review"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/searchFragment"
         android:icon="@drawable/ic_search"
         android:title="Search"

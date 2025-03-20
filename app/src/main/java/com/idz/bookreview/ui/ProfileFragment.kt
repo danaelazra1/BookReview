@@ -17,11 +17,12 @@ import com.idz.bookreview.api.CloudinaryService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import android.graphics.Bitmap
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 
 class ProfileFragment : Fragment() {
@@ -37,6 +38,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profileImageView: ImageView
     private lateinit var cameraIcon: ImageView
     private lateinit var deleteImageButton: Button
+
 
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -155,7 +157,7 @@ class ProfileFragment : Fragment() {
     private fun uploadImageToCloudinary(imageUri: Uri) {
         val contentResolver = requireContext().contentResolver
         val inputStream = contentResolver.openInputStream(imageUri)
-        val requestBody = inputStream?.readBytes()?.let { RequestBody.create(MediaType.get("image/*"), it) }
+        val requestBody = inputStream?.readBytes()?.let { RequestBody.create("image/*".toMediaType(), it) }
 
         requestBody?.let {
             val multipartBody = MultipartBody.Part.createFormData(
@@ -180,7 +182,7 @@ class ProfileFragment : Fragment() {
         val stream = java.io.ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         val byteArray = stream.toByteArray()
-        val requestBody = RequestBody.create(MediaType.get("image/jpeg"), byteArray)
+        val requestBody = RequestBody.create("image/jpeg".toMediaType(), byteArray)
         val multipartBody = MultipartBody.Part.createFormData("file", "profile_picture.jpg", requestBody)
 
         lifecycleScope.launch {
@@ -193,7 +195,10 @@ class ProfileFragment : Fragment() {
             }
         }
     }
-    private fun saveImageUrlToFirestore(imageUrl: String) {
+
+
+
+private fun saveImageUrlToFirestore(imageUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = db.collection("users").document(userId)
 
@@ -261,12 +266,8 @@ class ProfileFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 userRef.update("profileImageUrl", "")
-                    .addOnSuccessListener {
-                        println("Profile image removed")
-                    }
-                    .addOnFailureListener {
-                        println("Failed to remove profile image: ${it.message}")
-                    }
+                    .addOnSuccessListener { println("Profile image removed") }
+                    .addOnFailureListener { println("Failed to remove profile image: ${it.message}") }
 
                 userRef.delete()
                     .addOnSuccessListener {
@@ -289,22 +290,22 @@ class ProfileFragment : Fragment() {
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     if (deleteTask.isSuccessful) {
                                         Toast.makeText(requireContext(), "User deleted successfully", Toast.LENGTH_SHORT).show()
-                                        requireActivity().finish()
-                                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                                        findNavController().navigate(R.id.action_profileFragment_to_welcomeFragment)
                                     } else {
                                         Toast.makeText(requireContext(), "Error: ${deleteTask.exception?.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
+
+
                         }
                     }
                     .addOnFailureListener { e ->
-                        println("Failed to delete user from Firestore: ${e.message}")
                         lifecycleScope.launch(Dispatchers.Main) {
                             Toast.makeText(requireContext(), "Error deleting user from Firestore", Toast.LENGTH_SHORT).show()
+                            println("Failed to delete user from Firestore: ${e.message}")
                         }
                     }
-
             } catch (e: Exception) {
                 lifecycleScope.launch(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Error deleting user: ${e.message}", Toast.LENGTH_SHORT).show()

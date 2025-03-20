@@ -30,11 +30,22 @@ class MainActivity : AppCompatActivity() {
 
         val user = auth.currentUser
 
+        // הסתרת הניווט התחתון במסכי הכניסה
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            bottomNavigationView.visibility = if (destination.id == R.id.welcomeFragment ||
+                destination.id == R.id.loginFragment ||
+                destination.id == R.id.signupFragment) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+        }
+
+        // ביצוע הניווט למסך המתאים רק אחרי שהניווט מוכן
         if (user == null) {
-            // אם המשתמש לא מחובר – נשלח אותו למסך הכניסה
+            // אם המשתמש לא מחובר, נוודא שהוא מועבר ל-WelcomeFragment
             navController.navigate(R.id.welcomeFragment)
         } else {
-            // אם המשתמש מחובר – נטען את הנתונים שלו מ-Firestore
             val userId = user.uid
             val userRef = db.collection("users").document(userId)
 
@@ -54,17 +65,6 @@ class MainActivity : AppCompatActivity() {
                             Log.w("TAG", "Error creating user profile", e)
                         }
                 }
-            }
-        }
-
-        // הסתרת הניווט התחתון במסכי הכניסה
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            bottomNavigationView.visibility = if (destination.id == R.id.welcomeFragment ||
-                destination.id == R.id.loginFragment ||
-                destination.id == R.id.signupFragment) {
-                View.GONE
-            } else {
-                View.VISIBLE
             }
         }
     }

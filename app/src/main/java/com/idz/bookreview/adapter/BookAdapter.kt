@@ -3,6 +3,7 @@ package com.idz.bookreview.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -10,13 +11,29 @@ import com.bumptech.glide.Glide
 import com.idz.bookreview.R
 import com.idz.bookreview.model.Book
 
-class BookAdapter(private var books: List<Book>) :
-    RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+class BookAdapter(
+    private var books: List<Book>,
+    private val listener: OnBookClickListener
+) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
-    class BookViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    interface OnBookClickListener {
+        fun onBookSelected(book: Book)
+    }
+
+    inner class BookViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleTextView: TextView = view.findViewById(R.id.bookTitle)
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val coverImageView: ImageView = view.findViewById(R.id.bookCover)
+        private val selectButton: Button = view.findViewById(R.id.selectButton)
+
+        init {
+            selectButton.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onBookSelected(books[position])
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
@@ -36,10 +53,9 @@ class BookAdapter(private var books: List<Book>) :
                 .load(book.coverUrl)
                 .into(holder.coverImageView)
         } else {
-            holder.coverImageView.visibility = View.GONE // ✅ מסתיר את התמונה אם אין כריכה
+            holder.coverImageView.visibility = View.GONE
         }
     }
-
 
     override fun getItemCount(): Int = books.size
 

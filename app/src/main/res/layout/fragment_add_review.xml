@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- תמונת הספר -->
+        <ImageView
+            android:id="@+id/bookImageView"
+            android:layout_width="140dp"
+            android:layout_height="200dp"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_report_image"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/white" />
+
+        <!-- כפתור להוספת תמונה לספר -->
+        <Button
+            android:id="@+id/addImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Image"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#795548"
+            android:padding="10dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="3dp"/>
+
+        <!-- שם הספר -->
+        <EditText
+            android:id="@+id/bookTitleEditText"
+            android:layout_width="match_parent"
+            android:layout_height="48sp"
+            android:hint="Book Title"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <!-- שם המחבר -->
+        <EditText
+            android:id="@+id/bookAuthorEditText"
+            android:layout_width="match_parent"
+            android:layout_height="48sp"
+            android:hint="Author"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <!-- תיבת טקסט לביקורת -->
+        <EditText
+            android:id="@+id/reviewEditText"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:hint="Write your review..."
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:layout_marginTop="12dp"
+            android:background="@android:color/white"
+            android:elevation="2dp"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- כפתור שמירה -->
+        <Button
+            android:id="@+id/saveReviewButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Review"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#5D4037"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:elevation="3dp"/>
+
+    </LinearLayout>
+</ScrollView>

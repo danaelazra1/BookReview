@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.idz.bookreview.model.User
 import com.idz.bookreview.model.Review
 
-@Database(entities = [User::class, Review::class], version = 3, exportSchema = false)
+@Database(entities = [User::class, Review::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -26,7 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "book_review_database"
                 )
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -34,9 +34,26 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_2_3 = object : Migration(2, 3) {
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE reviews ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+                try {
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN userName TEXT NOT NULL DEFAULT ''")
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN imageUrl TEXT")
+                } catch (e: Exception) {
+                    println("Columns already exist, skipping migration.")
+                }
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                try {
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN userName TEXT NOT NULL DEFAULT ''")
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN imageUrl TEXT")
+                } catch (e: Exception) {
+                    println("Columns already exist, skipping migration.")
+                }
             }
         }
     }
