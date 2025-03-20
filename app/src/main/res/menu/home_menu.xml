@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_my_reviews"
+        android:title="@string/my_reviews"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_liked_reviews"
+        android:title="@string/liked_reviews"
+        app:showAsAction="never" />
+</menu>

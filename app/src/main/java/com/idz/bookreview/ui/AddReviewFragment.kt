@@ -39,6 +39,7 @@ class AddReviewFragment : Fragment() {
     private lateinit var saveReviewButton: Button
     private lateinit var addImageButton: Button
     private lateinit var bookImageView: ImageView
+    private lateinit var userNameTextView: TextView
     private val viewModel: AddReviewViewModel by viewModels()
 
     private var selectedImageUri: Uri? = null
@@ -65,12 +66,19 @@ class AddReviewFragment : Fragment() {
         saveReviewButton = view.findViewById(R.id.saveReviewButton)
         addImageButton = view.findViewById(R.id.addImageButton)
         bookImageView = view.findViewById(R.id.bookImageView)
+        userNameTextView = view.findViewById(R.id.userNameTextView)
 
+
+        viewModel.userName.observe(viewLifecycleOwner) { userName ->
+            userNameTextView.text = userName
+        }
         addImageButton.setOnClickListener { showImageSourceDialog() }
 
         saveReviewButton.setOnClickListener {
             saveReview()
         }
+
+        viewModel.updateUserName()
 
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Bundle>("imageData")
             ?.observe(viewLifecycleOwner) { bundle ->

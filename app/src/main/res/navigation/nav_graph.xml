@@ -48,7 +48,14 @@
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_myReviewsFragment"
+            app:destination="@id/myReviewsFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_likedReviewsFragment"
+            app:destination="@id/likedReviewsFragment"/>
     </fragment>
+
 
     <fragment
         android:id="@+id/searchFragment"
@@ -73,4 +80,18 @@
             android:id="@+id/action_addReviewFragment_to_searchFragment"
             app:destination="@id/searchFragment"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/myReviewsFragment"
+        android:name="com.idz.bookreview.ui.MyReviewsFragment"
+        android:label="My Reviews"
+        tools:layout="@layout/fragment_my_reviews" />
+
+    <fragment
+        android:id="@+id/likedReviewsFragment"
+        android:name="com.idz.bookreview.ui.LikedReviewsFragment"
+        android:label="Liked Reviews"
+        tools:layout="@layout/fragment_liked_reviews" />
+
+
 </navigation>

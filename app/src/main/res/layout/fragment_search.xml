@@ -30,7 +30,7 @@
         android:text="Search"
         android:textSize="14sp"
         android:textColor="@android:color/white"
-        android:backgroundTint="#E1541C09"
+        android:backgroundTint="#795548"
         android:padding="8dp"
         android:layout_marginTop="8dp"
         android:elevation="3dp"/>

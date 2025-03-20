@@ -1,9 +1,15 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.BookReview" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+<resources>
+    <style name="Theme.BookReview" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- ביטול ActionBar כדי שנוכל להשתמש ב-Toolbar שלנו -->
+        <item name="windowActionBar">false</item>
 
-    <style name="Theme.BookReview" parent="Base.Theme.BookReview" />
+        <!-- הפיכת סטטוס בר לשחור עם אייקונים בשחור -->
+
+        <item name="android:statusBarColor">@color/transparent_brown</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- שמירת צבע הטקסט של תפריט ה-3 נקודות בשחור -->
+        <item name="android:textColorPrimary">#000000</item>
+
+
+    </style>
 </resources>

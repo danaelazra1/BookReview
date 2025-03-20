@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,6 +14,7 @@ import com.idz.bookreview.model.Review
 import com.idz.bookreview.model.dao.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -26,11 +29,45 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
     private val reviewDao = AppDatabase.getDatabase(application).reviewDao()
     private val user = FirebaseAuth.getInstance().currentUser
 
+    private val _userName = MutableLiveData<String>()
+    val userName: LiveData<String> get() = _userName
+
+    init {
+        loadUserName()
+    }
+
+    private fun loadUserName() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userName = getUserNameFromFirestore(user?.email ?: "")
+            _userName.postValue(userName)
+        }
+    }
+
+    private suspend fun getUserNameFromFirestore(userEmail: String): String {
+        var userName = "Unknown User"
+        try {
+            val documentSnapshot = firestore.collection("users")
+                .whereEqualTo("email", userEmail)
+                .get()
+                .await()
+
+            if (!documentSnapshot.isEmpty) {
+                val userDoc = documentSnapshot.documents[0]
+                userName = userDoc.getString("username") ?: "Unknown User"
+            }
+        } catch (e: Exception) {
+            println("Error fetching user data from Firestore: ${e.message}")
+        }
+        return userName
+    }
+
     fun saveReview(title: String, author: String, review: String, imageUri: Uri?) {
         viewModelScope.launch(Dispatchers.IO) {
             var imageUrl: String? = null
             val userId = user?.uid ?: "unknown_user"
-            val userName = user?.displayName ?: "Unknown User"
+
+            // שליפה של שם המשתמש מתוך Firestore
+            val userName = getUserNameFromFirestore(user?.email ?: "")
 
             if (imageUri != null) {
                 if (imageUri.scheme == "content" || imageUri.scheme == "file") {
@@ -77,10 +114,10 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
 
-// שמירת הביקורת ב-Firestore
+            // שמירת הביקורת ב-Firestore
             val reviewData = hashMapOf(
                 "userId" to userId,
-                "userName" to userName,
+                "userName" to userName,  // משתמש בשם שהתקבל מ-Firestore
                 "title" to title,
                 "author" to author,
                 "review" to review,
@@ -93,14 +130,14 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 .addOnSuccessListener { println("Review successfully saved to Firestore!") }
                 .addOnFailureListener { e -> println("Error saving review: ${e.message}") }
 
-// שמירת הביקורת ב-Room Database
+            // שמירת הביקורת ב-Room Database
             val localReview = Review(
                 userId = userId,
                 userName = userName,
                 bookTitle = title,
                 author = author,
                 reviewText = review,
-                imageUrl = imageUrl,  // ודאי שזה הכתובת מ-Cloudinary ולא הכתובת מה-API
+                imageUrl = imageUrl,
                 timestamp = System.currentTimeMillis()
             )
 
@@ -110,10 +147,12 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
             } catch (e: Exception) {
                 println("Error saving review to Room Database: ${e.message}")
             }
-
         }
     }
 
+    fun updateUserName() {
+        loadUserName()  // מחדש את שם המשתמש לאחר שינוי
+    }
 
     private fun getBytesFromUri(context: Context, uri: Uri): ByteArray? {
         return try {

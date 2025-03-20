@@ -24,8 +24,14 @@ import android.graphics.Bitmap
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.core.app.ActivityCompat
 
 class ProfileFragment : Fragment() {
+
+    private val CAMERA_PERMISSION_CODE = 1001
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -38,8 +44,6 @@ class ProfileFragment : Fragment() {
     private lateinit var profileImageView: ImageView
     private lateinit var cameraIcon: ImageView
     private lateinit var deleteImageButton: Button
-
-
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -54,7 +58,6 @@ class ProfileFragment : Fragment() {
             uploadBitmapToCloudinary(it)
         }
     }
-
     override fun onCreateView(
         inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,7 +97,8 @@ class ProfileFragment : Fragment() {
         }
 
         cameraIcon.setOnClickListener {
-            showImagePickerDialog()
+            requestCameraPermission()
+
         }
 
         deleteImageButton.setOnClickListener {
@@ -103,6 +107,22 @@ class ProfileFragment : Fragment() {
 
         return view
     }
+
+    private fun requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            // מבקשים הרשאה
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_CODE
+            )
+        } else {
+            showImagePickerDialog() // אם ההרשאה כבר קיימת - פותחים את הדיאלוג לבחירת תמונה
+        }
+    }
+
 
     private fun loadUserData(userId: String) {
         db.collection("users").document(userId).get()
@@ -154,26 +174,50 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                showImagePickerDialog() // אם ההרשאה התקבלה, מציגים את הדיאלוג לבחירת תמונה
+            } else {
+                Toast.makeText(requireContext(), "Camera Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
     private fun uploadImageToCloudinary(imageUri: Uri) {
         val contentResolver = requireContext().contentResolver
         val inputStream = contentResolver.openInputStream(imageUri)
-        val requestBody = inputStream?.readBytes()?.let { RequestBody.create("image/*".toMediaType(), it) }
+        val requestBody = inputStream?.readBytes()?.let {
+            RequestBody.create("image/*".toMediaType(), it)
+        }
 
-        requestBody?.let {
-            val multipartBody = MultipartBody.Part.createFormData(
-                "file",
-                "profile_picture.jpg",
-                it
-            )
+        if (requestBody == null) {
+            Toast.makeText(requireContext(), "Error reading image", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            lifecycleScope.launch {
-                try {
-                    val response = CloudinaryService.api.uploadImage(multipartBody)
-                    val imageUrl = response.secureUrl
-                    saveImageUrlToFirestore(imageUrl)
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Error uploading image", Toast.LENGTH_SHORT).show()
+        val multipartBody = MultipartBody.Part.createFormData(
+            "file",
+            "profile_picture.jpg",
+            requestBody
+        )
+
+        lifecycleScope.launch {
+            try {
+                val response = CloudinaryService.api.uploadImage(multipartBody)
+                if (response.secureUrl.isNotEmpty()) {
+                    saveImageUrlToFirestore(response.secureUrl)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
                 }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error uploading image: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -183,21 +227,22 @@ class ProfileFragment : Fragment() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         val byteArray = stream.toByteArray()
         val requestBody = RequestBody.create("image/jpeg".toMediaType(), byteArray)
+
         val multipartBody = MultipartBody.Part.createFormData("file", "profile_picture.jpg", requestBody)
 
         lifecycleScope.launch {
             try {
                 val response = CloudinaryService.api.uploadImage(multipartBody)
-                val imageUrl = response.secureUrl
-                saveImageUrlToFirestore(imageUrl)
+                if (response.secureUrl.isNotEmpty()) {
+                    saveImageUrlToFirestore(response.secureUrl)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error uploading image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error uploading image: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-
-
 private fun saveImageUrlToFirestore(imageUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = db.collection("users").document(userId)
@@ -312,7 +357,9 @@ private fun saveImageUrlToFirestore(imageUrl: String) {
                 }
             }
         }
+
     }
+
 
 
 }
