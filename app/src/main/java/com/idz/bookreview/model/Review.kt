@@ -3,14 +3,15 @@ package com.idz.bookreview.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+
 @Entity(tableName = "reviews")
 data class Review(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val userId: String,
-    val userName: String,
-    val bookTitle: String,
-    val author: String,
-    val reviewText: String,
-    val imageUrl: String?,
-    val timestamp: Long
+    @PrimaryKey val id: String = "",  // מסומן כ-primaryKey אבל לא מנסה לייצר אותו אוטומטית
+    val userId: String = "",
+    val userName: String = "",
+    val title: String = "",
+    val author: String = "",
+    val review: String = "",
+    var imageUrl: String? = null,
+    val timestamp: Long = 0L
 )

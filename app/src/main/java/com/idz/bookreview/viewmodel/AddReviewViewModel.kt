@@ -65,9 +65,8 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch(Dispatchers.IO) {
             var imageUrl: String? = null
             val userId = user?.uid ?: "unknown_user"
-
-            // שליפה של שם המשתמש מתוך Firestore
             val userName = getUserNameFromFirestore(user?.email ?: "")
+            val timestamp = System.currentTimeMillis()
 
             if (imageUri != null) {
                 if (imageUri.scheme == "content" || imageUri.scheme == "file") {
@@ -114,15 +113,17 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
 
+
+
             // שמירת הביקורת ב-Firestore
             val reviewData = hashMapOf(
                 "userId" to userId,
-                "userName" to userName,  // משתמש בשם שהתקבל מ-Firestore
+                "userName" to userName,
                 "title" to title,
                 "author" to author,
                 "review" to review,
                 "imageUrl" to imageUrl,
-                "timestamp" to System.currentTimeMillis()
+                "timestamp" to timestamp
             )
 
             firestore.collection("reviews")
@@ -134,24 +135,24 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
             val localReview = Review(
                 userId = userId,
                 userName = userName,
-                bookTitle = title,
+                title = title,
                 author = author,
-                reviewText = review,
+                review = review,
                 imageUrl = imageUrl,
-                timestamp = System.currentTimeMillis()
+                timestamp = timestamp
             )
 
             try {
                 reviewDao.insertReview(localReview)
-                println("Review successfully saved to Room Database!")
+                println("✔️ Review successfully saved to Room Database!")
             } catch (e: Exception) {
-                println("Error saving review to Room Database: ${e.message}")
+                println("❌ Error saving review to Room Database: ${e.message}")
             }
         }
     }
 
     fun updateUserName() {
-        loadUserName()  // מחדש את שם המשתמש לאחר שינוי
+        loadUserName()
     }
 
     private fun getBytesFromUri(context: Context, uri: Uri): ByteArray? {
@@ -172,3 +173,4 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 }
+

@@ -85,13 +85,30 @@
         android:id="@+id/myReviewsFragment"
         android:name="com.idz.bookreview.ui.MyReviewsFragment"
         android:label="My Reviews"
-        tools:layout="@layout/fragment_my_reviews" />
+        tools:layout="@layout/fragment_my_reviews" >
+        <action
+            android:id="@+id/action_myReviewsFragment_to_editReviewFragment"
+            app:destination="@id/editReviewFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/likedReviewsFragment"
         android:name="com.idz.bookreview.ui.LikedReviewsFragment"
         android:label="Liked Reviews"
         tools:layout="@layout/fragment_liked_reviews" />
+
+    <fragment
+        android:id="@+id/editReviewFragment"
+        android:name="com.idz.bookreview.ui.EditReviewFragment"
+        android:label="Edit Review"
+        tools:layout="@layout/fragment_edit_review" >
+        <argument
+            android:name="reviewId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_editReviewFragment_to_myReviewsFragment"
+            app:destination="@id/myReviewsFragment" />
+    </fragment>
 
 
 </navigation>

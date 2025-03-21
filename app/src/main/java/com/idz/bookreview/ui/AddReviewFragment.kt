@@ -18,10 +18,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
+import com.idz.bookreview.ui.AddReviewFragment.Companion.CAPTURE_IMAGE_REQUEST
+import com.idz.bookreview.ui.AddReviewFragment.Companion.PICK_IMAGE_REQUEST
 import com.idz.bookreview.viewmodel.AddReviewViewModel
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -140,18 +146,26 @@ class AddReviewFragment : Fragment() {
     }
 
     private fun saveReview() {
-        val bookTitle = bookTitleEditText.text.toString()
-        val bookAuthor = bookAuthorEditText.text.toString()
-        val reviewText = reviewEditText.text.toString()
+        val bookTitle = bookTitleEditText.text.toString().trim()
+        val bookAuthor = bookAuthorEditText.text.toString().trim()
+        val reviewText = reviewEditText.text.toString().trim()
 
-        if (bookTitle.isNotBlank() && bookAuthor.isNotBlank() && reviewText.isNotBlank()) {
-            viewModel.saveReview(bookTitle, bookAuthor, reviewText, selectedImageUri)
-            Toast.makeText(requireContext(), "Review saved successfully!", Toast.LENGTH_SHORT).show()
-            clearInputs()
-        } else {
+        if (bookTitle.isBlank() || bookAuthor.isBlank() || reviewText.isBlank()) {
             Toast.makeText(requireContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                viewModel.saveReview(bookTitle, bookAuthor, reviewText, selectedImageUri)
+                Toast.makeText(requireContext(), "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                clearInputs()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error saving review: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
 
     private fun clearInputs() {
         bookTitleEditText.text.clear()
@@ -192,4 +206,6 @@ class AddReviewFragment : Fragment() {
             null
         }
     }
+
 }
+

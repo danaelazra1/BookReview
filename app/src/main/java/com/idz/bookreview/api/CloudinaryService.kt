@@ -10,6 +10,7 @@ import retrofit2.http.Part
 import retrofit2.http.Query
 import com.google.gson.annotations.SerializedName
 
+
 object CloudinaryService {
 
     private const val CLOUD_NAME = "df8odu4s4"
@@ -37,8 +38,10 @@ interface CloudinaryApi {
         @Part file: MultipartBody.Part,
         @Query("upload_preset") uploadPreset: String = CloudinaryService.UPLOAD_PRESET
     ): CloudinaryResponse
-}
+
+
 
 data class CloudinaryResponse(
     @SerializedName("secure_url") val secureUrl: String
 )
+}

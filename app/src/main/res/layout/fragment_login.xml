@@ -55,7 +55,7 @@
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:backgroundTint="@android:color/holo_blue_dark"
+        android:backgroundTint="#795548"
         android:padding="10dp"
         android:elevation="4dp"
         android:layout_below="@id/passwordEditText"
