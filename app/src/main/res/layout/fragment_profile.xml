@@ -74,6 +74,28 @@
         android:layout_marginBottom="12dp"/>
 
     <Button
+        android:id="@+id/myReviewsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Reviews"
+        android:textColor="#FFFFFF"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#D5541502"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/favoritesButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Favorite Reviews"
+        android:textColor="#FFFFFF"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#D5541502"
+        android:layout_marginTop="16dp"/>
+
+    <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -22,4 +22,13 @@ interface ReviewDao {
 
     @Delete
     suspend fun deleteReview(review: Review)
+
+    @Query("SELECT * FROM reviews WHERE isFavorite = 1")
+    fun getFavoriteReviewsLive(): LiveData<List<Review>>
+
+    @Query("UPDATE reviews SET isFavorite = 1 WHERE id = :reviewId")
+    suspend fun addToFavorites(reviewId: String)
+
+    @Query("UPDATE reviews SET isFavorite = 0 WHERE id = :reviewId")
+    suspend fun removeFromFavorites(reviewId: String)
 }

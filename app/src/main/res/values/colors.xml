@@ -2,5 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="colorButtonNormal">#6200EE</color>
+    <color name="colorButtonPressed">#3700B3</color>
+    <color name="colorButtonDisabled">#AAAAAA</color>
     <color name="nav_item_color">#0B0A0A</color>
 </resources>

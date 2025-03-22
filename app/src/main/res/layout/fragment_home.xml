@@ -3,17 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="#FAF5EE">
 
     <TextView
-        android:id="@+id/homeTitle"
+        android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Home Page"
-        android:textSize="24sp"
+        android:text="All Reviews"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp"/>
+        android:layout_gravity="center"
+        android:paddingBottom="12dp"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewReviews"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
 </LinearLayout>

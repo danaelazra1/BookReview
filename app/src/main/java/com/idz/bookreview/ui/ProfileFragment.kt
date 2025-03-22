@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.MainActivity
 import com.idz.bookreview.R
-import com.idz.bookreview.model.dao.AppDatabase
 import com.idz.bookreview.model.networking.CloudinaryService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +22,10 @@ import okhttp3.RequestBody
 import android.graphics.Bitmap
 import android.view.View
 import com.bumptech.glide.Glide
+import com.idz.bookreview.model.dao.AppDatabase
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+import androidx.navigation.fragment.findNavController
 
 class ProfileFragment : Fragment() {
 
@@ -37,7 +40,8 @@ class ProfileFragment : Fragment() {
     private lateinit var profileImageView: ImageView
     private lateinit var cameraIcon: ImageView
     private lateinit var deleteImageButton: Button
-
+    private lateinit var myReviewsButton: Button
+    private lateinit var favoritesButton: Button
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -71,6 +75,8 @@ class ProfileFragment : Fragment() {
         deleteAccountButton = view.findViewById(R.id.deleteAccountButton)
         cameraIcon = view.findViewById(R.id.cameraIcon)
         deleteImageButton = view.findViewById(R.id.deleteImageButton)
+        myReviewsButton = view.findViewById(R.id.myReviewsButton)
+        favoritesButton = view.findViewById(R.id.favoritesButton)
 
         val user = auth.currentUser
         userEmailTextView.text = user?.email ?: "Guest"
@@ -99,7 +105,24 @@ class ProfileFragment : Fragment() {
             removeProfileImage()
         }
 
+        myReviewsButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_myReviewsFragment)
+        }
+
+        favoritesButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_favoritesFragment)
+        }
+
         return view
+    }
+
+    private fun hideKeyboard(view: View) {
+        try {
+            val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun loadUserData(userId: String) {
@@ -193,6 +216,7 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
     private fun saveImageUrlToFirestore(imageUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = db.collection("users").document(userId)
@@ -241,8 +265,6 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "Error updating username in Firestore", Toast.LENGTH_SHORT).show()
             }
     }
-
-
 
     private fun showDeleteAccountDialog() {
         AlertDialog.Builder(requireContext())
@@ -312,6 +334,4 @@ class ProfileFragment : Fragment() {
             }
         }
     }
-
-
 }

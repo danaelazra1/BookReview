@@ -1,71 +1,80 @@
 package com.idz.bookreview
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.cloudinary.android.MediaManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import androidx.navigation.NavController
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = FirebaseAuth.getInstance()
-        val db = Firebase.firestore
+        val config = hashMapOf(
+            "df8odu4s4" to BuildConfig.CLOUDINARY_CLOUD_NAME,
+            "336195937131691" to BuildConfig.CLOUDINARY_API_KEY,
+            "SaBVAU7-nDyK21XJulN76xExl84" to BuildConfig.CLOUDINARY_API_SECRET
+        )
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        try {
+            MediaManager.get()
+        } catch (e: Exception) {
+            MediaManager.init(this, config)
+        }
+
+        // הגדרת הניווט
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        if (navHostFragment != null) {
+            navController = navHostFragment.navController
+        } else {
+            return
+        }
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        NavigationUI.setupWithNavController(bottomNavigationView, navController)
-
-        val user = auth.currentUser
-
-        if (user == null) {
-            // אם המשתמש לא מחובר – נשלח אותו למסך הכניסה
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null && savedInstanceState == null) {
             navController.navigate(R.id.welcomeFragment)
-        } else {
-            // אם המשתמש מחובר – נטען את הנתונים שלו מ-Firestore
-            val userId = user.uid
-            val userRef = db.collection("users").document(userId)
-
-            userRef.get().addOnSuccessListener { document ->
-                if (!document.exists()) {
-                    val userData = hashMapOf(
-                        "id" to userId,
-                        "email" to user.email,
-                        "username" to "",
-                        "profileImageUrl" to ""
-                    )
-                    userRef.set(userData)
-                        .addOnSuccessListener {
-                            Log.d("TAG", "User profile created successfully!")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("TAG", "Error creating user profile", e)
-                        }
-                }
-            }
         }
 
-        // הסתרת הניווט התחתון במסכי הכניסה
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            bottomNavigationView.visibility = if (destination.id == R.id.welcomeFragment ||
+            bottomNavigationView.visibility = if (
+                destination.id == R.id.welcomeFragment ||
                 destination.id == R.id.loginFragment ||
-                destination.id == R.id.signupFragment) {
-                View.GONE
-            } else {
-                View.VISIBLE
+                destination.id == R.id.signupFragment
+            ) View.GONE else View.VISIBLE
+        }
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.homeFragment -> {
+                    navController.navigate(R.id.homeFragment)
+                    true
+                }
+                R.id.searchFragment -> {
+                    navController.navigate(R.id.searchFragment)
+                    true
+                }
+                R.id.profileFragment -> {
+                    navController.navigate(R.id.profileFragment)
+                    true
+                }
+                R.id.addReviewFragment -> {
+                    navController.popBackStack()
+                    navController.navigate(R.id.addReviewFragment)
+                    true
+                }
+                else -> false
             }
         }
+        bottomNavigationView.setupWithNavController(navController)
     }
 }
