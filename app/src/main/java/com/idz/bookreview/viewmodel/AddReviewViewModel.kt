@@ -113,10 +113,11 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
 
-
+            val reviewId = firestore.collection("reviews").document().id
 
             // שמירת הביקורת ב-Firestore
             val reviewData = hashMapOf(
+                "id" to reviewId,
                 "userId" to userId,
                 "userName" to userName,
                 "title" to title,
@@ -126,13 +127,16 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 "timestamp" to timestamp
             )
 
+            // שמירה ב-Firestore
             firestore.collection("reviews")
-                .add(reviewData)
+                .document(reviewId)
+                .set(reviewData)
                 .addOnSuccessListener { println("Review successfully saved to Firestore!") }
                 .addOnFailureListener { e -> println("Error saving review: ${e.message}") }
 
             // שמירת הביקורת ב-Room Database
             val localReview = Review(
+                id = reviewId,
                 userId = userId,
                 userName = userName,
                 title = title,

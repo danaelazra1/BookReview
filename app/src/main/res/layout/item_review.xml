@@ -63,7 +63,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/editIcon"
+        android:id="@+id/ic_edit"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_marginStart="8dp"
@@ -71,7 +71,7 @@
         android:contentDescription="Edit Review"/>
 
     <ImageView
-        android:id="@+id/deleteIcon"
+        android:id="@+id/ic_trash"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"

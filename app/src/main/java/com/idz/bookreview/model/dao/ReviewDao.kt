@@ -25,6 +25,6 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews WHERE id = :id")
     suspend fun getReviewById(id: String): Review?  // פונקציה לשליפת ביקורת בודדת לפי ID
 
-    @Query("DELETE FROM reviews WHERE id = :id")
-    suspend fun deleteReview(id: String)
+    @Query("DELETE FROM reviews WHERE id = :reviewId")
+    suspend fun deleteReviewById(reviewId: String)
 }
