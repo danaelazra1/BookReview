@@ -66,5 +66,21 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_gravity="top|end"/>
+
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_edit"
+            android:contentDescription="Edit Review" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_delete"
+            android:contentDescription="Delete Review" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

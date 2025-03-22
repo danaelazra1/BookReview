@@ -9,10 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.idz.bookreview.R
 import com.idz.bookreview.model.Review
 import com.squareup.picasso.Picasso
+import android.widget.ImageButton
 
 class ReviewAdapter(
-    private var reviewList: List<Review>,
-    private val onFavoriteClick: (Review) -> Unit  // פונקציה ללחיצה על לב
+    private var reviews: List<Review>,
+    private val onFavoriteClick: (Review) -> Unit,  // פונקציה ללחיצה על לב
+    private val onEditClick: (Review) -> Unit,
+    private val onDeleteClick: (Review) -> Unit,
+    private val showEditOptions: Boolean = false
 ) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     class ReviewViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -21,6 +25,8 @@ class ReviewAdapter(
         val reviewText: TextView = view.findViewById(R.id.reviewTextView)
         val bookImage: ImageView = view.findViewById(R.id.bookImageView)
         val favoriteButton: ImageView = view.findViewById(R.id.favoriteButton)  // כפתור לב
+        val editButton: ImageButton = itemView.findViewById(R.id.btnEdit)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.btnDelete)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -30,7 +36,7 @@ class ReviewAdapter(
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
-        val review = reviewList[position]
+        val review = reviews[position]
 
         holder.bookTitle.text = review.bookTitle
         holder.bookDescription.text = review.bookDescription
@@ -50,12 +56,29 @@ class ReviewAdapter(
         holder.favoriteButton.setOnClickListener {
             onFavoriteClick(review)
         }
+
+        holder.editButton.setOnClickListener {
+            onEditClick(review)
+        }
+
+        holder.deleteButton.setOnClickListener {
+            onDeleteClick(review)
+        }
+
+        //  שליטה על נראות כפתורי עריכה/מחיקה
+        if (showEditOptions) {
+            holder.editButton.visibility = View.VISIBLE
+            holder.deleteButton.visibility = View.VISIBLE
+        } else {
+            holder.editButton.visibility = View.GONE
+            holder.deleteButton.visibility = View.GONE
+        }
     }
 
-    override fun getItemCount(): Int = reviewList.size
+    override fun getItemCount(): Int = reviews.size
 
     fun updateReviews(newReviews: List<Review>) {
-        reviewList = newReviews
+        reviews = newReviews
         notifyDataSetChanged()
     }
 }

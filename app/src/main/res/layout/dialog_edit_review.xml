@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editBookTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Name" />
+
+    <EditText
+        android:id="@+id/editBookDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Description"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/editReviewText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Review"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

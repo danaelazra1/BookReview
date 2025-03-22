@@ -21,4 +21,19 @@ class FirebaseService {
             false
         }
     }
+
+    fun updateReviewInFirestore(review: Review) {
+        FirebaseFirestore.getInstance()
+            .collection("reviews")
+            .document(review.id)
+            .set(review)
+    }
+
+    fun deleteReviewFromFirestore(reviewId: String) {
+        FirebaseFirestore.getInstance()
+            .collection("reviews")
+            .document(reviewId)
+            .delete()
+    }
+
 }

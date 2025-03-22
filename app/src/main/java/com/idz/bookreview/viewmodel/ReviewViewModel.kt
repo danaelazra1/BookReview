@@ -37,4 +37,21 @@ class ReviewViewModel(
     fun getReviewsByUser(userId: String): LiveData<List<Review>> {
         return reviewDao.getReviewsByUser(userId)
     }
+
+    fun updateReview(review: Review) {
+        viewModelScope.launch {
+            reviewDao.updateReview(review) // עדכון ב־Room
+            firebaseService.updateReviewInFirestore(review) // עדכון ב־Firestore
+        }
+    }
+
+
+    fun deleteReview(review: Review) {
+        viewModelScope.launch {
+            reviewDao.deleteReview(review) // מחיקה מ־Room
+            firebaseService.deleteReviewFromFirestore(review.id) // מחיקה מ־Firestore
+        }
+    }
+
+
 }

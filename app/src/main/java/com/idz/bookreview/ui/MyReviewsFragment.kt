@@ -4,33 +4,34 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.idz.bookreview.R
 import com.idz.bookreview.adapter.ReviewAdapter
+import com.idz.bookreview.model.Review
 import com.idz.bookreview.model.dao.AppDatabase
+import com.idz.bookreview.model.networking.FirebaseService
 import com.idz.bookreview.viewmodel.ReviewViewModel
 import com.idz.bookreview.viewmodel.ReviewViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import com.idz.bookreview.model.networking.FirebaseService // ודא שהייבוא קיים
-import androidx.fragment.app.activityViewModels
 
 class MyReviewsFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ReviewAdapter
 
-    private val reviewViewModel: ReviewViewModel by activityViewModels<ReviewViewModel> {
+    private val reviewViewModel: ReviewViewModel by activityViewModels {
         ReviewViewModelFactory(
             AppDatabase.getDatabase(requireContext()).reviewDao(),
             FirebaseService()
         )
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,9 +46,14 @@ class MyReviewsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewMyReviews)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = ReviewAdapter(emptyList()) { review ->
-            reviewViewModel.toggleFavorite(review) //  פונקציה שמוסיפה/מסירה ממועדפים
-        }
+        adapter = ReviewAdapter(
+            reviews = emptyList(),
+            onFavoriteClick = { review -> reviewViewModel.toggleFavorite(review) },
+            onEditClick = { review -> showEditDialog(review) },
+            onDeleteClick = { review -> reviewViewModel.deleteReview(review) },
+            showEditOptions = true
+        )
+
         recyclerView.adapter = adapter
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -73,4 +79,31 @@ class MyReviewsFragment : Fragment() {
             adapter.updateReviews(updatedReviews)
         }
     }
+
+    private fun showEditDialog(review: Review) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_review, null)
+        val titleEdit = dialogView.findViewById<EditText>(R.id.editBookTitle)
+        val descEdit = dialogView.findViewById<EditText>(R.id.editBookDescription)
+        val reviewEdit = dialogView.findViewById<EditText>(R.id.editReviewText)
+
+        // קביעת הטקסטים הקיימים
+        titleEdit.setText(review.bookTitle)
+        descEdit.setText(review.bookDescription)
+        reviewEdit.setText(review.reviewText)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Review")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val updatedReview = review.copy(
+                    bookTitle = titleEdit.text.toString().trim(),
+                    bookDescription = descEdit.text.toString().trim(),
+                    reviewText = reviewEdit.text.toString().trim()
+                )
+                reviewViewModel.updateReview(updatedReview)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 }

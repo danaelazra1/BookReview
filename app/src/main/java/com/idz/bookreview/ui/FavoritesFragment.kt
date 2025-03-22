@@ -51,9 +51,14 @@ class FavoritesFragment : Fragment() {
         }
 
         //  הגדרת ה-Adapter עם פונקציה להוספה/הסרה ממועדפים
-        adapter = ReviewAdapter(emptyList()) { review ->
-            reviewViewModel.toggleFavorite(review)
-        }
+        adapter = ReviewAdapter(
+            emptyList(),
+            onFavoriteClick = { review -> reviewViewModel.toggleFavorite(review) },
+            onEditClick = { }, // אין צורך בעריכה במסך הזה
+            onDeleteClick = { }, // אין צורך במחיקה במסך הזה
+            showEditOptions = false
+        )
+
         recyclerView.adapter = adapter
 
         //  טעינת הביקורות המועדפות

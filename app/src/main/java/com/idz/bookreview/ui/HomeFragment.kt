@@ -39,10 +39,14 @@ class HomeFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewReviews)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = ReviewAdapter(emptyList()) { review ->
-            reviewViewModel.toggleFavorite(review)
-            Toast.makeText(requireContext(), "עודכן במועדפים!", Toast.LENGTH_SHORT).show()
-        }
+        adapter = ReviewAdapter(
+            emptyList(),
+            onFavoriteClick = { review -> reviewViewModel.toggleFavorite(review) },
+            onEditClick = { }, // לא רלוונטי לעריכה במסך הבית
+            onDeleteClick = { }, // גם לא למחיקה
+            showEditOptions = false
+        )
+
         recyclerView.adapter = adapter
 
         reviewViewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
