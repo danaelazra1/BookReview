@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- צבעים בסיסיים -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- צבעים כלליים לעיצוב -->
     <color name="nav_item_color">#0B0A0A</color>
     <color name="transparent_brown">#795548</color>
+
+    <!-- צבעים ראשיים של האפליקציה -->
+    <color name="primaryColor">#673AB7</color>       <!-- סגול כהה -->
+    <color name="primaryLightColor">#D1C4E9</color>   <!-- סגול בהיר -->
+    <color name="primaryDarkColor">#311B92</color>    <!-- סגול כהה מאוד -->
+    <color name="accentColor">#FF9800</color>         <!-- כתום עז -->
+
+    <!-- צבעי רקע ומסגרות -->
+    <color name="backgroundColor">#F5F5F5</color>     <!-- אפור בהיר לרקע כללי -->
+    <color name="cardBackgroundColor">#FFFFFF</color>  <!-- לבן לכרטיסים -->
+
+    <!-- צבעי טקסט -->
+    <color name="textPrimaryColor">#212121</color>     <!-- טקסט ראשי כהה (כמעט שחור) -->
+    <color name="textSecondaryColor">#757575</color>   <!-- טקסט משני (אפור כהה) -->
+
+    <!-- צבעים מיוחדים -->
+    <color name="editColor">#FF9800</color>         <!-- כתום לעריכה -->
+    <color name="errorColor">#F44336</color>        <!-- אדום למחיקה -->         <!-- כתום לעריכה -->
 
 </resources>

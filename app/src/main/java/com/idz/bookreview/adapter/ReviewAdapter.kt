@@ -20,11 +20,17 @@ class ReviewAdapter(
     private val context: Context,
     private var reviews: MutableList<Review>,
     private val onEditClick: (Review) -> Unit,
-    private val onDeleteClick: (String) -> Unit
+    private val onDeleteClick: (String) -> Unit,
+    private val sourceFragment: String  // מאיזה פרגמנט אנחנו מגיעים (HomeFragment או MyReviewsFragment)
 ) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
+    fun updateReviews(newReviews: List<Review>) {
+        reviews.clear()
+        reviews.addAll(newReviews)
+        notifyDataSetChanged()
+    }
 
     inner class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bookImageView: ImageView = itemView.findViewById(R.id.bookImageView)
@@ -35,6 +41,43 @@ class ReviewAdapter(
         val reviewTextView: TextView = itemView.findViewById(R.id.reviewTextView)
         val editIcon: ImageView = itemView.findViewById(R.id.ic_edit)
         val deleteIcon: ImageView = itemView.findViewById(R.id.ic_trash)
+
+        fun bind(review: Review) {
+            userNameTextView.text = review.userName
+            bookTitleTextView.text = review.title
+            bookAuthorTextView.text = "Author: ${review.author}"
+            reviewTextView.text = "Review: ${review.review}"
+            dateTextView.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(review.timestamp))
+
+            // טעינת תמונה באמצעות Picasso אם קיים URL תקין
+            if (!review.imageUrl.isNullOrEmpty()) {
+                Picasso.get().load(review.imageUrl).into(bookImageView)
+            } else {
+                bookImageView.setImageResource(R.drawable.ic_default_book)
+            }
+
+            // הצגת האייקונים רק אם אנחנו ב-MyReviewsFragment
+            if (sourceFragment == "MyReviewsFragment" && review.userId == currentUserId) {
+                editIcon.visibility = View.VISIBLE
+                deleteIcon.visibility = View.VISIBLE
+
+                // כפתור עריכה
+                editIcon.setOnClickListener {
+                    val bundle = Bundle().apply { putString("reviewId", review.id) }
+                    it.findNavController().navigate(R.id.editReviewFragment, bundle)
+                }
+
+                // כפתור מחיקה
+                deleteIcon.setOnClickListener {
+                    onDeleteClick(review.id)
+                }
+
+            } else {
+                // אם זה HomeFragment - לא נציג את האייקונים
+                editIcon.visibility = View.GONE
+                deleteIcon.visibility = View.GONE
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -43,45 +86,7 @@ class ReviewAdapter(
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
-        val review = reviews[position]
-
-        // קביעת הערכים של הטקסטים
-        holder.userNameTextView.text = review.userName
-        holder.bookTitleTextView.text = "${review.title}"
-        holder.bookAuthorTextView.text = "Author: ${review.author}"
-        holder.reviewTextView.text = "Review: ${review.review}"
-
-        // עיצוב התאריך
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        holder.dateTextView.text = dateFormat.format(Date(review.timestamp))
-
-        // הצגת התמונה
-        if (!review.imageUrl.isNullOrEmpty()) {
-            Picasso.get().load(review.imageUrl).into(holder.bookImageView)
-        } else {
-            holder.bookImageView.setImageResource(R.drawable.ic_default_book)
-        }
-
-        if (review.userId == currentUserId) {
-            holder.editIcon.visibility = View.VISIBLE
-            holder.deleteIcon.visibility = View.VISIBLE
-
-            // מעבר למסך העריכה
-            holder.editIcon.setOnClickListener { view ->
-                val bundle = Bundle().apply { putString("reviewId", review.id) }
-                view.findNavController().navigate(R.id.editReviewFragment, bundle)
-            }
-
-            // מחיקת הביקורת מיידית
-            holder.deleteIcon.setOnClickListener {
-                onDeleteClick(review.id)
-            }
-        } else {
-            holder.editIcon.visibility = View.GONE
-            holder.deleteIcon.visibility = View.GONE
-        }
-
-
+        holder.bind(reviews[position])
     }
 
     override fun getItemCount(): Int = reviews.size

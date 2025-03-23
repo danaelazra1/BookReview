@@ -13,6 +13,9 @@ interface ReviewDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReview(review: Review)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReviews(reviews: List<Review>)
+
     @Update
     suspend fun updateReview(review: Review)  // פונקציית עדכון חדשה
 
