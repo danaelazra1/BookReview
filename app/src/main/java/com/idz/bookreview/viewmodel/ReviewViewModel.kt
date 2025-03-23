@@ -93,24 +93,25 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
 
     fun saveReview(updatedReview: Review, imagePath: String? = null, context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
-            val userId = user?.uid ?: "unknown_user"
+            val userId = updatedReview.userId.takeIf { it.isNotEmpty() } ?: user?.uid ?: "unknown_user"
+
+            val reviewToSave = updatedReview.copy(userId = userId)
 
             if (imagePath != null && imagePath.isNotEmpty()) {
                 val imageUrl = uploadImageToCloudinary(imagePath, context)
                 if (imageUrl != null) {
-                    // עדכון הביקורת עם הכתובת החדשה של התמונה
-                    val updatedReviewWithImage = updatedReview.copy(imageUrl = imageUrl)
-                    saveReviewToFirestoreAndRoom(updatedReviewWithImage, userId)
+                    val updatedReviewWithImage = reviewToSave.copy(imageUrl = imageUrl)
+                    saveReviewToFirestoreAndRoom(updatedReviewWithImage)
                 } else {
-                    Log.e("ReviewViewModel", "Image upload failed - saving without image.")
-                    saveReviewToFirestoreAndRoom(updatedReview, userId)
+                    saveReviewToFirestoreAndRoom(reviewToSave)
                 }
             } else {
-                // אין תמונה חדשה, נמשיך לשמור את הביקורת כמו שהיא
-                saveReviewToFirestoreAndRoom(updatedReview, userId)
+                saveReviewToFirestoreAndRoom(reviewToSave)
             }
         }
     }
+
+
 
 
     private suspend fun uploadImageToCloudinary(imagePath: String, context: Context): String? {
@@ -134,29 +135,32 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    private fun saveReviewToFirestoreAndRoom(updatedReview: Review, userId: String) {
+    private fun saveReviewToFirestoreAndRoom(review: Review) {
         val reviewData = hashMapOf(
-            "id" to updatedReview.id,
-            "userId" to userId,
-            "userName" to updatedReview.userName,
-            "title" to updatedReview.title,
-            "author" to updatedReview.author,
-            "review" to updatedReview.review,
-            "imageUrl" to updatedReview.imageUrl,  // מעדכן את התמונה החדשה או ריק אם אין תמונה
-            "timestamp" to updatedReview.timestamp
+            "id" to review.id,
+            "userId" to review.userId,
+            "userName" to review.userName,
+            "title" to review.title,
+            "author" to review.author,
+            "review" to review.review,
+            "imageUrl" to review.imageUrl,
+            "timestamp" to review.timestamp
         )
 
-        firestore.collection("reviews").document(updatedReview.id)
+        firestore.collection("reviews").document(review.id)
             .set(reviewData)
             .addOnSuccessListener {
-                _review.postValue(updatedReview)
-                saveReviewLocally(updatedReview)
-                Log.d("ReviewViewModel", "Review saved to Firestore successfully.")
+                viewModelScope.launch(Dispatchers.IO) {
+                    roomDao.updateReview(review)
+                }
+                Log.d("ReviewViewModel", "Review saved successfully.")
             }
             .addOnFailureListener { exception ->
-                Log.e("ReviewViewModel", "Failed to save review to Firestore: ${exception.message}")
+                Log.e("ReviewViewModel", "Failed to save review: ${exception.message}")
             }
     }
+
+
 
     private fun saveReviewLocally(review: Review) {
         CoroutineScope(Dispatchers.IO).launch {
