@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.idz.bookreview.model.User
 import com.idz.bookreview.model.Review
 
-@Database(entities = [User::class, Review::class], version = 6, exportSchema = false)
+@Database(entities = [User::class, Review::class], version = 7, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao

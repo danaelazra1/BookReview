@@ -104,6 +104,16 @@
                 android:padding="6dp"
                 app:tint="@color/errorColor"
                 android:src="@drawable/ic_trash"/>
+
+            <ImageView
+                android:id="@+id/likeIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_heart_outline"
+                android:contentDescription="Like Icon"/>
+
         </LinearLayout>
     </LinearLayout>
 

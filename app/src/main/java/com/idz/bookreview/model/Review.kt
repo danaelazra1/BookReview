@@ -13,5 +13,7 @@ data class Review(
     val author: String = "",
     val review: String = "",
     var imageUrl: String? = null,
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    var isLiked: Boolean = false  // שדה חדש שמייצג האם הפוסט מסומן כאהוב או לא
+
 )

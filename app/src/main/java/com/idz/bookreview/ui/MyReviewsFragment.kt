@@ -22,6 +22,8 @@ class MyReviewsFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private val reviewsList = mutableListOf<Review>()
     private lateinit var reviewAdapter: ReviewAdapter
+    private val db = FirebaseFirestore.getInstance()
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,14 +34,6 @@ class MyReviewsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         reviewViewModel = ViewModelProvider(this)[ReviewViewModel::class.java]
-
-        reviewViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
-            if (reviews != null && reviews.isNotEmpty()) {
-                reviewsList.clear()
-                reviewsList.addAll(reviews)
-                reviewAdapter.notifyDataSetChanged()
-            }
-        }
 
         reviewAdapter = ReviewAdapter(
             requireContext(),
@@ -55,19 +49,30 @@ class MyReviewsFragment : Fragment() {
                     reviewAdapter.notifyItemRemoved(position)
                 }
             },
-            sourceFragment = "MyReviewsFragment"  // אנחנו מגדירים כאן שזה בא מפרגמנט הביקורות שלי
+            onLikeClick = { review ->
+                reviewViewModel.updateReviewLikeStatus(review)  // שולח את העדכון ל-ViewModel
+            },
+            sourceFragment = "MyReviewsFragment"
         )
 
         recyclerView.adapter = reviewAdapter
 
-        fetchUserReviews()  // טוען ביקורות משתמש
+        reviewViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+            if (reviews != null && reviews.isNotEmpty()) {
+                val userReviews = reviews.filter { it.userId == userId }
+                reviewsList.clear()
+                reviewsList.addAll(userReviews)
+                reviewAdapter.notifyDataSetChanged()
+            }
+        }
+
+        fetchUserReviews()  // טוען ביקורות משתמש מ-Firestore
 
         return view
     }
 
     private fun fetchUserReviews() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
+        if (userId == null) return
 
         db.collection("reviews")
             .whereEqualTo("userId", userId)
@@ -75,7 +80,7 @@ class MyReviewsFragment : Fragment() {
             .addOnSuccessListener { documents ->
                 val newList = mutableListOf<Review>()
                 for (document in documents) {
-                    val review = document.toObject(Review::class.java)?.copy(id = document.id)
+                    val review = document.toObject(Review::class.java).copy(id = document.id)
                     if (review != null) newList.add(review)
                 }
 
