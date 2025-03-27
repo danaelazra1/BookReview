@@ -242,7 +242,7 @@ class ProfileFragment : Fragment() {
             }
         }
     }
-private fun saveImageUrlToFirestore(imageUrl: String) {
+    private fun saveImageUrlToFirestore(imageUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = db.collection("users").document(userId)
 
@@ -252,11 +252,25 @@ private fun saveImageUrlToFirestore(imageUrl: String) {
                 Glide.with(this).load(imageUrl).into(profileImageView)
                 cameraIcon.visibility = View.GONE
                 deleteImageButton.visibility = View.VISIBLE
+
+                // עדכון ה- Room Database
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val user = appDatabase.userDao().getUserById(userId)
+                    if (user != null) {
+                        user.profileImageUrl = imageUrl  // עדכון קישור התמונה ב-ROOM
+                        appDatabase.userDao().updateUser(user)
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Profile image updated in Room!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Error saving image", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun updateUsername(userId: String) {
         val newUsername = usernameEditText.text.toString().trim()

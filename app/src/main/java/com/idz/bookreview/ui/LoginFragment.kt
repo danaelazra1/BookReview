@@ -43,18 +43,13 @@ class LoginFragment : Fragment() {
                 .addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
-                        try {
-                            findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            Toast.makeText(requireContext(), "Error navigating: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
+                        findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
                     } else {
                         Toast.makeText(requireContext(), "Login failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-
         }
+
 
         registerRedirect.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signupFragment)

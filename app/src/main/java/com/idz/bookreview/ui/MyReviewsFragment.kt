@@ -46,14 +46,19 @@ class MyReviewsFragment : Fragment() {
             },
             onDeleteClick = { reviewId ->
                 val position = reviewsList.indexOfFirst { it.id == reviewId }
-                if (position != -1) {
+                if (position in reviewsList.indices) {  // בדיקה שהמיקום הוא בתוך הגבולות של הרשימה
                     lifecycleScope.launch {
                         homeViewModel.deleteReviewById(reviewId)
-                        reviewsList.removeAt(position)
-                        reviewAdapter.notifyItemRemoved(position)
+                        if (reviewsList.isNotEmpty()) {  // לוודא שהרשימה לא ריקה
+                            reviewsList.removeAt(position)
+                            reviewAdapter.notifyItemRemoved(position)
+                        }
                     }
+                } else {
+                    Toast.makeText(requireContext(), "Review not found or list is empty.", Toast.LENGTH_SHORT).show()
                 }
-            },
+            }
+            ,
             onLikeClick = { review ->
                 homeViewModel.updateReviewLikeStatus(review)
             },

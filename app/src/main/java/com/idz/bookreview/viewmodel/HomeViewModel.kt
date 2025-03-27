@@ -55,10 +55,6 @@ class HomeViewModel(private val context: Context) : ViewModel() {
                 val firestoreReviews = snapshot.toObjects(Review::class.java)
                 Log.d("HomeViewModel", "Reviews loaded from Firestore successfully.")
 
-                viewModelScope.launch(Dispatchers.IO) {
-                    reviewDao.insertReviews(firestoreReviews)
-                }
-
                 _reviewsLiveData.postValue(firestoreReviews.toMutableList())
             } else {
                 Log.e("HomeViewModel", "No reviews found in Firestore.")
