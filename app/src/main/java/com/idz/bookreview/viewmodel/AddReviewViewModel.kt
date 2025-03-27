@@ -34,6 +34,10 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
     private val _userName = MutableLiveData<String>()
     val userName: LiveData<String> get() = _userName
 
+    private val _imageUploadCompleted = MutableLiveData<Boolean>()
+    val imageUploadCompleted: LiveData<Boolean> get() = _imageUploadCompleted
+
+
     init {
         loadUserName()
     }
@@ -67,29 +71,11 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun saveReview(title: String, author: String, review: String, imageUri: Uri?) {
         viewModelScope.launch(Dispatchers.IO) {
-            var imageUrl: String? = null
             val userId = user?.uid ?: "unknown_user"
             val userName = getUserNameFromFirestore(user?.email ?: "")
             val timestamp = System.currentTimeMillis()
-
-            if (imageUri != null) {
-                if (imageUri.scheme == "content" || imageUri.scheme == "file") {
-                    try {
-                        val file = File(imageUri.path!!)
-                        val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
-                        val part = MultipartBody.Part.createFormData("file", file.name, requestBody)
-
-                        val response = CloudinaryService.api.uploadImage(part)
-                        imageUrl = response.secureUrl
-                    } catch (e: Exception) {
-                        println("Error uploading image to Cloudinary: ${e.message}")
-                    }
-                }
-            }
-
             val reviewId = firestore.collection("reviews").document().id
 
-            // שמירת הביקורת ב-Firestore
             val reviewData = hashMapOf(
                 "id" to reviewId,
                 "userId" to userId,
@@ -97,19 +83,17 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 "title" to title,
                 "author" to author,
                 "review" to review,
-                "imageUrl" to imageUrl,
+                "imageUrl" to null,
                 "timestamp" to timestamp,
                 "favoritedByUsers" to ArrayList<String>()
             )
 
-            // שמירה ב-Firestore
             firestore.collection("reviews")
                 .document(reviewId)
                 .set(reviewData)
-                .addOnSuccessListener { println("Review successfully saved to Firestore!") }
-                .addOnFailureListener { e -> println("Error saving review: ${e.message}") }
+                .addOnSuccessListener { Log.d("AddReviewViewModel", "Review successfully saved to Firestore!") }
+                .addOnFailureListener { e -> Log.e("AddReviewViewModel", "Error saving review: ${e.message}") }
 
-            // שמירת הביקורת ב-Room Database
             val localReview = Review(
                 id = reviewId,
                 userId = userId,
@@ -117,11 +101,10 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 title = title,
                 author = author,
                 review = review,
-                imageUrl = imageUrl,
+                imageUrl = null,
                 timestamp = timestamp,
                 favoritedByUsers = emptyList()
             )
-
 
             try {
                 reviewDao.insertReview(localReview)
@@ -129,8 +112,54 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
             } catch (e: Exception) {
                 Log.e("AddReviewViewModel", "Error saving review to Room Database: ${e.message}")
             }
+
+            if (imageUri != null) {
+                uploadImageToCloudinary(imageUri, reviewId, localReview)
+            }
         }
     }
+
+    private fun uploadImageToCloudinary(imageUri: Uri, reviewId: String, localReview: Review) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                var imageUrl: String? = null
+
+                if (imageUri.scheme == "http" || imageUri.scheme == "https") {
+                    val inputStream = java.net.URL(imageUri.toString()).openStream()
+                    val file = File.createTempFile("tempImage", ".jpg", getApplication<Application>().cacheDir)
+                    file.outputStream().use { outputStream -> inputStream.copyTo(outputStream) }
+
+                    val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+                    val part = MultipartBody.Part.createFormData("file", file.name, requestBody)
+
+                    imageUrl = withContext(Dispatchers.IO) {
+                        CloudinaryService.api.uploadImage(part).secureUrl
+                    }
+
+                    file.delete()
+                } else if (imageUri.scheme == "content" || imageUri.scheme == "file") {
+                    val file = File(imageUri.path!!)
+                    val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+                    val part = MultipartBody.Part.createFormData("file", file.name, requestBody)
+
+                    imageUrl = withContext(Dispatchers.IO) {
+                        CloudinaryService.api.uploadImage(part).secureUrl
+                    }
+                }
+
+                if (imageUrl != null) {
+                    firestore.collection("reviews")
+                        .document(reviewId)
+                        .update("imageUrl", imageUrl)
+                        .addOnSuccessListener { _imageUploadCompleted.postValue(true) }
+                }
+
+            } catch (e: Exception) {
+                Log.e("AddReviewViewModel", "Error uploading image to Cloudinary: ${e.message}")
+            }
+        }
+    }
+
 
     fun updateUserName() {
         loadUserName()

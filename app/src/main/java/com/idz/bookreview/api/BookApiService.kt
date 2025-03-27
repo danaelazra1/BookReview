@@ -8,6 +8,6 @@ import retrofit2.http.Query
 interface BookApiService {
     @GET("search.json")
     fun searchBooks(
-        @Query("q") query: String // 🔹 חיפוש ספרים לפי שם או מחבר
+        @Query("q") query: String
     ): Call<BookResponse>
 }

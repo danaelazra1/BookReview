@@ -18,7 +18,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private var isHomeFragment = false  // כדי לדעת אם אנחנו בעמוד הבית
+    private var isHomeFragment = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         val db = Firebase.firestore
 
-        // הגדרת צבע הסטטוס בר לחום בהיר שקפקף
         window.statusBarColor = ContextCompat.getColor(this, R.color.transparent_brown)
 
         val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
@@ -43,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             isHomeFragment = destination.id == R.id.homeFragment
 
-            // מציג את ה-Tollbar רק בדף הבית
             if (isHomeFragment) {
                 toolbar.visibility = View.VISIBLE
             } else {

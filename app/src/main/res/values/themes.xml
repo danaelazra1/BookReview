@@ -1,13 +1,10 @@
 <resources>
     <style name="Theme.BookReview" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- ביטול ActionBar כדי שנוכל להשתמש ב-Toolbar שלנו -->
         <item name="windowActionBar">false</item>
 
-        <!-- הפיכת סטטוס בר לשחור עם אייקונים בשחור -->
 
         <item name="android:statusBarColor">@color/transparent_brown</item>
         <item name="android:windowLightStatusBar">true</item>
-        <!-- שמירת צבע הטקסט של תפריט ה-3 נקודות בשחור -->
         <item name="android:textColorPrimary">#000000</item>
 
 

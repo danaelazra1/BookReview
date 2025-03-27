@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:gravity="center_horizontal">
 
-        <!-- שם הספר -->
         <EditText
             android:id="@+id/editTitle"
             android:layout_width="match_parent"
@@ -24,7 +23,6 @@
             android:elevation="2dp"
             android:textSize="16sp" />
 
-        <!-- שם המחבר -->
         <EditText
             android:id="@+id/editAuthor"
             android:layout_width="match_parent"
@@ -37,7 +35,6 @@
             android:layout_marginTop="8dp"
             android:textSize="16sp" />
 
-        <!-- תוכן הביקורת -->
         <EditText
             android:id="@+id/editReview"
             android:layout_width="match_parent"
@@ -50,7 +47,6 @@
             android:layout_marginTop="8dp"
             android:textSize="14sp" />
 
-        <!-- תמונת הספר -->
         <ImageView
             android:id="@+id/editImageView"
             android:layout_width="140dp"
@@ -69,7 +65,6 @@
             android:layout_gravity="center_horizontal"/>
 
 
-        <!-- כפתור שמירה -->
         <Button
             android:id="@+id/saveButton"
             android:layout_width="wrap_content"

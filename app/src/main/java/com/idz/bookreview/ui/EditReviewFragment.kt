@@ -36,7 +36,7 @@ class EditReviewFragment : Fragment() {
 
     private var reviewId: String? = null
     private var selectedImageUri: Uri? = null
-    private var isImageRemoved = false  // מעקב אחרי מחיקת תמונה
+    private var isImageRemoved = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -176,14 +176,11 @@ class EditReviewFragment : Fragment() {
         )
 
         if (selectedImageUri != null && !isImageRemoved) {
-            // אם התמונה חדשה או עודכנה
             viewModel.saveReview(updatedReview, selectedImageUri.toString(), requireContext())
         } else {
-            // אם התמונה נמחקה או לא נבחרה תמונה חדשה
             viewModel.saveReview(updatedReview, null, requireContext())
         }
 
-        // מיד לאחר שמירה נעדכן את המסך הקודם
         findNavController().navigate(R.id.action_editReviewFragment_to_myReviewsFragment)
     }
 

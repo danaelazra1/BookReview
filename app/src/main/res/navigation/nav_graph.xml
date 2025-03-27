@@ -43,12 +43,6 @@
         android:name="com.idz.bookreview.ui.HomeFragment"
         android:label="HomeFragment">
         <action
-            android:id="@+id/action_homeFragment_to_profileFragment"
-            app:destination="@id/profileFragment"/>
-        <action
-            android:id="@+id/action_homeFragment_to_searchFragment"
-            app:destination="@id/searchFragment"/>
-        <action
             android:id="@+id/action_homeFragment_to_myReviewsFragment"
             app:destination="@id/myReviewsFragment"/>
         <action
@@ -60,7 +54,11 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.idz.bookreview.ui.SearchFragment"
-        android:label="SearchFragment" />
+        android:label="SearchFragment" >
+        <action
+            android:id="@+id/action_searchFragment_to_addReviewFragment"
+            app:destination="@id/addReviewFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
@@ -75,11 +73,8 @@
         android:id="@+id/addReviewFragment"
         android:name="com.idz.bookreview.ui.AddReviewFragment"
         android:label="fragment_add_review"
-        tools:layout="@layout/fragment_add_review" >
-        <action
-            android:id="@+id/action_addReviewFragment_to_searchFragment"
-            app:destination="@id/searchFragment"/>
-    </fragment>
+        tools:layout="@layout/fragment_add_review" />
+
 
     <fragment
         android:id="@+id/myReviewsFragment"

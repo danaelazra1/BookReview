@@ -74,6 +74,18 @@ class AddReviewFragment : Fragment() {
         bookImageView = view.findViewById(R.id.bookImageView)
         userNameTextView = view.findViewById(R.id.userNameTextView)
 
+        val bookTitle = arguments?.getString("bookTitle")
+        val bookAuthor = arguments?.getString("bookAuthor")
+        val imageUrl = arguments?.getString("imageUrl")
+
+        bookTitleEditText.setText(bookTitle)
+        bookAuthorEditText.setText(bookAuthor)
+
+        if (!imageUrl.isNullOrEmpty()) {
+            selectedImageUri = Uri.parse(imageUrl)
+            Picasso.get().load(imageUrl).into(bookImageView)
+        }
+
 
         viewModel.userName.observe(viewLifecycleOwner) { userName ->
             userNameTextView.text = userName
@@ -86,31 +98,23 @@ class AddReviewFragment : Fragment() {
 
         viewModel.updateUserName()
 
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Bundle>("imageData")
-            ?.observe(viewLifecycleOwner) { bundle ->
-                val imageUrl = bundle.getString("imageUrl")
-                if (!imageUrl.isNullOrEmpty()) {
-                    selectedImageUri = Uri.parse(imageUrl)
-                    Picasso.get().load(imageUrl).into(bookImageView)
-                }
-            }
 
         return view
     }
 
     private fun showImageSourceDialog() {
-        val options = arrayOf("Camera", "Gallery", "Search from API")
+        val options = arrayOf("Camera", "Gallery")
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Select Image Source")
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> checkCameraPermission()
                 1 -> openGallery()
-                2 -> openBookImageSearch()
             }
         }
         builder.show()
     }
+
 
     private fun checkCameraPermission() {
         when {
@@ -141,9 +145,6 @@ class AddReviewFragment : Fragment() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
-    private fun openBookImageSearch() {
-        findNavController().navigate(R.id.action_addReviewFragment_to_searchFragment)
-    }
 
     private fun saveReview() {
         val bookTitle = bookTitleEditText.text.toString().trim()

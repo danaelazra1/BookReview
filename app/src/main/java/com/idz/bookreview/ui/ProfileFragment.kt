@@ -112,14 +112,13 @@ class ProfileFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
 
-            // מבקשים הרשאה
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(Manifest.permission.CAMERA),
                 CAMERA_PERMISSION_CODE
             )
         } else {
-            showImagePickerDialog() // אם ההרשאה כבר קיימת - פותחים את הדיאלוג לבחירת תמונה
+            showImagePickerDialog()
         }
     }
 
@@ -182,7 +181,7 @@ class ProfileFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                showImagePickerDialog() // אם ההרשאה התקבלה, מציגים את הדיאלוג לבחירת תמונה
+                showImagePickerDialog()
             } else {
                 Toast.makeText(requireContext(), "Camera Permission Denied", Toast.LENGTH_SHORT).show()
             }

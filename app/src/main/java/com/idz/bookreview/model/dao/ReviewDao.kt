@@ -17,8 +17,7 @@ interface ReviewDao {
     suspend fun insertReviews(reviews: List<Review>)
 
     @Update
-    suspend fun updateReview(review: Review)  // פונקציית עדכון חדשה
-
+    suspend fun updateReview(review: Review)
     @Query("SELECT * FROM reviews ORDER BY timestamp DESC")
     suspend fun getAllReviews(): List<Review>
 
@@ -26,7 +25,7 @@ interface ReviewDao {
     suspend fun getReviewsByUser(userId: String): List<Review>
 
     @Query("SELECT * FROM reviews WHERE id = :id")
-    suspend fun getReviewById(id: String): Review?  // פונקציה לשליפת ביקורת בודדת לפי ID
+    suspend fun getReviewById(id: String): Review?
 
     @Query("DELETE FROM reviews WHERE id = :reviewId")
     suspend fun deleteReviewById(reviewId: String)

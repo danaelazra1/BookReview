@@ -79,11 +79,13 @@ class SearchFragment : Fragment(), BookAdapter.OnBookClickListener {
     }
 
     override fun onBookSelected(book: Book) {
-        // משתמשים ב-Navigation Component כדי להחזיר את ה-URL של התמונה
         val bundle = Bundle().apply {
+            putString("bookTitle", book.title)
+            putString("bookAuthor", book.authorName)
             putString("imageUrl", book.coverUrl)
         }
-        findNavController().previousBackStackEntry?.savedStateHandle?.set("imageData", bundle)
-        findNavController().popBackStack()  // חזרה ל-AddReviewFragment
+
+        findNavController().navigate(R.id.action_searchFragment_to_addReviewFragment, bundle)
     }
+
 }

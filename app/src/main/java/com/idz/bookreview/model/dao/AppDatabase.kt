@@ -52,7 +52,6 @@ abstract class AppDatabase : RoomDatabase() {
                     // מחיקה של העמודה הישנה 'likes' אם קיימת
                     db.execSQL("ALTER TABLE reviews RENAME TO reviews_old;")
 
-                    // יצירת טבלה חדשה עם העמודה favoritedByUsers במקום likes
                     db.execSQL("""
                         CREATE TABLE reviews (
                             id TEXT PRIMARY KEY NOT NULL,
@@ -67,14 +66,12 @@ abstract class AppDatabase : RoomDatabase() {
                         )
                     """.trimIndent())
 
-                    // העברת המידע מהטבלה הישנה לחדשה
                     db.execSQL("""
                         INSERT INTO reviews (id, userId, userName, title, author, review, imageUrl, timestamp, favoritedByUsers)
                         SELECT id, userId, userName, title, author, review, imageUrl, timestamp, '[]'
                         FROM reviews_old
                     """.trimIndent())
 
-                    // מחיקת הטבלה הישנה
                     db.execSQL("DROP TABLE reviews_old;")
                 } catch (e: Exception) {
                     println("Error during migration from version 8 to 9: ${e.message}")

@@ -45,8 +45,7 @@ class BookAdapter(
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         val book = books[position]
         holder.titleTextView.text = book.title
-        holder.authorTextView.text = book.authorName?.joinToString(", ") ?: "Author Unknown"
-
+        holder.authorTextView.text = book.authorName ?: "Author Unknown"
         if (!book.coverUrl.isNullOrEmpty()) {
             holder.coverImageView.visibility = View.VISIBLE
             Glide.with(holder.itemView.context)

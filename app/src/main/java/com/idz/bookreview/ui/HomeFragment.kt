@@ -28,7 +28,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)  // שמירה על טעינת התפריט העליון (שלוש נקודות)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -58,13 +58,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         recyclerView.adapter = adapter
 
-        // נטען את כל הביקורות מ-Firestore ומ-ROOM
+
         viewModel.reloadAllReviews()
 
-        // הוספת observer ל-LiveData
         viewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
             if (reviews.isNotEmpty()) {
-                adapter.updateReviews(reviews) // עדכון התצוגה עם המידע החדש
+                adapter.updateReviews(reviews)
             } else {
                 Toast.makeText(requireContext(), "No reviews found. Please add a review.", Toast.LENGTH_SHORT).show()
             }

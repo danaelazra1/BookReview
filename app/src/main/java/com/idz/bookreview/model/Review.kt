@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 
 @Entity(tableName = "reviews")
 data class Review(
-    @PrimaryKey val id: String = "",  // מסומן כ-primaryKey אבל לא מנסה לייצר אותו אוטומטית
+    @PrimaryKey val id: String = "",
     val userId: String = "",
     val userName: String = "",
     val title: String = "",

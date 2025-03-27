@@ -23,7 +23,7 @@ class ReviewAdapter(
     private val onEditClick: (Review) -> Unit,
     private val onDeleteClick: (String) -> Unit,
     private val onLikeClick: (Review) -> Unit,
-    private val sourceFragment: String  // מאיזה פרגמנט אנחנו מגיעים (HomeFragment או MyReviewsFragment)
+    private val sourceFragment: String
 ) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
@@ -71,18 +71,18 @@ class ReviewAdapter(
 
                 likeIcon.setOnClickListener {
                     if (currentUserId != null) {
-                        Log.d("ReviewAdapter", "🖱️ Like Icon Clicked for Review ID: ${review.id}")
+                        Log.d("ReviewAdapter", "Like Icon Clicked for Review ID: ${review.id}")
 
                         val updatedLikes = review.favoritedByUsers.toMutableList()
 
                         if (updatedLikes.contains(currentUserId)) {
                             updatedLikes.remove(currentUserId)
                             likeIcon.setImageResource(R.drawable.ic_heart_outline)
-                            Log.d("ReviewAdapter", "💔 Like Removed Locally for Review: ${review.id}")
+                            Log.d("ReviewAdapter", "Like Removed Locally for Review: ${review.id}")
                         } else {
                             updatedLikes.add(currentUserId)
                             likeIcon.setImageResource(R.drawable.ic_heart_filled)
-                            Log.d("ReviewAdapter", "❤️ Like Added Locally for Review: ${review.id}")
+                            Log.d("ReviewAdapter", "Like Added Locally for Review: ${review.id}")
                         }
 
                         review.favoritedByUsers = updatedLikes

@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:gravity="center_horizontal">
 
-        <!-- שם המשתמש -->
         <TextView
             android:id="@+id/userNameTextView"
             android:layout_width="wrap_content"
@@ -25,7 +24,6 @@
             android:clickable="false"
             android:importantForAccessibility="yes"/>
 
-        <!-- תמונת הספר -->
         <ImageView
             android:id="@+id/bookImageView"
             android:layout_width="140dp"
@@ -35,7 +33,6 @@
             android:layout_marginBottom="12dp"
             android:background="@android:color/white" />
 
-        <!-- כפתור להוספת תמונה לספר -->
         <Button
             android:id="@+id/addImageButton"
             android:layout_width="wrap_content"
@@ -48,7 +45,6 @@
             android:layout_marginBottom="8dp"
             android:elevation="3dp"/>
 
-        <!-- שם הספר -->
         <EditText
             android:id="@+id/bookTitleEditText"
             android:layout_width="match_parent"
@@ -60,7 +56,6 @@
             android:background="@android:color/white"
             android:elevation="2dp" />
 
-        <!-- שם המחבר -->
         <EditText
             android:id="@+id/bookAuthorEditText"
             android:layout_width="match_parent"
@@ -73,7 +68,6 @@
             android:background="@android:color/white"
             android:elevation="2dp" />
 
-        <!-- תיבת טקסט לביקורת -->
         <EditText
             android:id="@+id/reviewEditText"
             android:layout_width="match_parent"
@@ -88,7 +82,6 @@
             android:gravity="top"
             android:inputType="textMultiLine" />
 
-        <!-- כפתור שמירה -->
         <Button
             android:id="@+id/saveReviewButton"
             android:layout_width="match_parent"

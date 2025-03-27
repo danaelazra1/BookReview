@@ -55,7 +55,7 @@ class MyReviewsFragment : Fragment() {
                 }
             },
             onLikeClick = { review ->
-                homeViewModel.updateReviewLikeStatus(review)  // שולח את העדכון ל-HomeViewModel
+                homeViewModel.updateReviewLikeStatus(review)
             },
             sourceFragment = "MyReviewsFragment"
         )
@@ -71,7 +71,7 @@ class MyReviewsFragment : Fragment() {
             }
         }
 
-        homeViewModel.reloadAllReviews()  // טוען את כל הביקורות כולל אלו מהמשתמש המחובר
+        homeViewModel.reloadAllReviews()
 
         return view
     }

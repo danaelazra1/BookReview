@@ -45,48 +45,42 @@ class HomeViewModel(private val context: Context) : ViewModel() {
     }
 
     fun reloadAllReviews() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val snapshot = reviewsCollection.get().await()
+        reviewsCollection.addSnapshotListener { snapshot, exception ->
+            if (exception != null) {
+                Log.e("HomeViewModel", "Failed to listen for changes in Firestore: ${exception.message}")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && !snapshot.isEmpty) {
                 val firestoreReviews = snapshot.toObjects(Review::class.java)
+                Log.d("HomeViewModel", "Reviews loaded from Firestore successfully.")
 
-                if (firestoreReviews.isNotEmpty()) {
-                    Log.d("HomeViewModel", "Reviews loaded from Firestore successfully.")
+                viewModelScope.launch(Dispatchers.IO) {
                     reviewDao.insertReviews(firestoreReviews)
-                    _reviewsLiveData.postValue(firestoreReviews.toMutableList())
-                } else {
-                    Log.e("HomeViewModel", "No reviews found in Firestore.")
                 }
-            } catch (e: Exception) {
-                Log.e(
-                    "HomeViewModel",
-                    "Failed to load reviews from Firestore. Loading from ROOM instead. Error: ${e.message}"
-                )
 
-                try {
-                    val reviewsFromRoom = reviewDao.getAllReviews().toMutableList()
-                    _reviewsLiveData.postValue(reviewsFromRoom)
-                } catch (roomError: Exception) {
-                    Log.e("HomeViewModel", "Failed to load reviews from ROOM: ${roomError.message}")
-                }
+                _reviewsLiveData.postValue(firestoreReviews.toMutableList())
+            } else {
+                Log.e("HomeViewModel", "No reviews found in Firestore.")
             }
         }
     }
+
 
     fun updateReviewLikeStatus(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val userId = user?.uid ?: return@launch
-                Log.d("HomeViewModel", "🔍 User ID: $userId")
-                Log.d("HomeViewModel", "🔥 Current Likes: ${review.favoritedByUsers}")
+                Log.d("HomeViewModel", "User ID: $userId")
+                Log.d("HomeViewModel", "Current Likes: ${review.favoritedByUsers}")
 
-                // שימוש ברשימה המעודכנת שהגיע מ-ReviewAdapter, בלי לשנות אותה כאן!
+
                 val updatedLikes = review.favoritedByUsers.toMutableList()
 
                 review.favoritedByUsers = updatedLikes
                 Log.d(
                     "HomeViewModel",
-                    "✅ Updated Review Object Before Sending to Firestore: $review"
+                    "Updated Review Object Before Sending to Firestore: $review"
                 )
 
                 val reviewData = hashMapOf(
@@ -101,35 +95,35 @@ class HomeViewModel(private val context: Context) : ViewModel() {
                     "favoritedByUsers" to ArrayList(review.favoritedByUsers)
                 )
 
-                Log.d("HomeViewModel", "📤 Data Being Sent to Firestore: $reviewData")
+                Log.d("HomeViewModel", "Data Being Sent to Firestore: $reviewData")
 
                 reviewsCollection.document(review.id)
                     .set(reviewData)
                     .addOnSuccessListener {
                         Log.d(
                             "HomeViewModel",
-                            "🔥 Firestore Updated Successfully for Review ID: ${review.id}"
+                            "Firestore Updated Successfully for Review ID: ${review.id}"
                         )
                         viewModelScope.launch(Dispatchers.IO) {
                             try {
                                 Log.d(
                                     "HomeViewModel",
-                                    "📦 Review Updated Successfully in ROOM with favoritedByUsers: ${review.favoritedByUsers}"
+                                    "Review Updated Successfully in ROOM with favoritedByUsers: ${review.favoritedByUsers}"
                                 )
                             } catch (e: Exception) {
                                 Log.e(
                                     "HomeViewModel",
-                                    "❌ Error saving review to ROOM: ${e.message}"
+                                    "Error saving review to ROOM: ${e.message}"
                                 )
                             }
                         }
                     }
                     .addOnFailureListener { e ->
-                        Log.e("HomeViewModel", "❌ Firestore Update Failed: ${e.message}")
+                        Log.e("HomeViewModel", "Firestore Update Failed: ${e.message}")
                     }
 
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "❌ Error in updateReviewLikeStatus: ${e.message}")
+                Log.e("HomeViewModel", "Error in updateReviewLikeStatus: ${e.message}")
             }
         }
     }
@@ -150,10 +144,8 @@ class HomeViewModel(private val context: Context) : ViewModel() {
     suspend fun deleteReviewById(reviewId: String) {
         withContext(Dispatchers.IO) {
             try {
-                // מחיקת הביקורת מה-ROOM
                 reviewDao.deleteReviewById(reviewId)
 
-                // מחיקת הביקורת מ-Firestore
                 reviewsCollection.document(reviewId).delete().await()
                 Log.d("HomeViewModel", "Review deleted successfully from Firestore and Room.")
             } catch (e: Exception) {
@@ -163,13 +155,4 @@ class HomeViewModel(private val context: Context) : ViewModel() {
     }
 
 
-    class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return HomeViewModel(context) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
 }
