@@ -152,6 +152,9 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                         .document(reviewId)
                         .update("imageUrl", imageUrl)
                         .addOnSuccessListener { _imageUploadCompleted.postValue(true) }
+                    val updatedReview = localReview.copy(imageUrl = imageUrl)
+                    reviewDao.updateReview(updatedReview)
+                    Log.d("AddReviewViewModel", "Review imageUrl updated successfully in Room Database!")
                 }
 
             } catch (e: Exception) {

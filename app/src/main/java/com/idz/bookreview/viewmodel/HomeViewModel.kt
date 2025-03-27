@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.idz.bookreview.model.Review
 import com.idz.bookreview.model.dao.AppDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -21,6 +22,7 @@ class HomeViewModel(private val context: Context) : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val reviewsCollection = firestore.collection("reviews")
     private val user = FirebaseAuth.getInstance().currentUser
+    private var listenerRegistration: ListenerRegistration? = null
 
     private val _reviewsLiveData = MutableLiveData<MutableList<Review>>()
     val reviewsLiveData: LiveData<MutableList<Review>> get() = _reviewsLiveData
@@ -44,8 +46,11 @@ class HomeViewModel(private val context: Context) : ViewModel() {
         }
     }
 
+
     fun reloadAllReviews() {
-        reviewsCollection.addSnapshotListener { snapshot, exception ->
+        listenerRegistration?.remove()
+
+        listenerRegistration = reviewsCollection.addSnapshotListener { snapshot, exception ->
             if (exception != null) {
                 Log.e("HomeViewModel", "Failed to listen for changes in Firestore: ${exception.message}")
                 return@addSnapshotListener
@@ -55,12 +60,15 @@ class HomeViewModel(private val context: Context) : ViewModel() {
                 val firestoreReviews = snapshot.toObjects(Review::class.java)
                 Log.d("HomeViewModel", "Reviews loaded from Firestore successfully.")
 
-                _reviewsLiveData.postValue(firestoreReviews.toMutableList())
+                viewModelScope.launch(Dispatchers.Main) {
+                    _reviewsLiveData.value = firestoreReviews.toMutableList()
+                }
             } else {
-                Log.e("HomeViewModel", "No reviews found in Firestore.")
+                _reviewsLiveData.value = mutableListOf()
             }
         }
     }
+
 
 
     fun updateReviewLikeStatus(review: Review) {
@@ -143,12 +151,14 @@ class HomeViewModel(private val context: Context) : ViewModel() {
                 reviewDao.deleteReviewById(reviewId)
 
                 reviewsCollection.document(reviewId).delete().await()
+
                 Log.d("HomeViewModel", "Review deleted successfully from Firestore and Room.")
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to delete review: ${e.message}")
             }
         }
     }
+
 
 
 }

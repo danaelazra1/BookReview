@@ -17,7 +17,9 @@ import com.idz.bookreview.adapter.ReviewAdapter
 import com.idz.bookreview.model.Review
 import com.idz.bookreview.viewmodel.HomeViewModel
 import com.idz.bookreview.viewmodel.HomeViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MyReviewsFragment : Fragment() {
 
@@ -45,20 +47,11 @@ class MyReviewsFragment : Fragment() {
                 Toast.makeText(requireContext(), "Edit review clicked for ${review.title}", Toast.LENGTH_SHORT).show()
             },
             onDeleteClick = { reviewId ->
-                val position = reviewsList.indexOfFirst { it.id == reviewId }
-                if (position in reviewsList.indices) {  // בדיקה שהמיקום הוא בתוך הגבולות של הרשימה
-                    lifecycleScope.launch {
-                        homeViewModel.deleteReviewById(reviewId)
-                        if (reviewsList.isNotEmpty()) {  // לוודא שהרשימה לא ריקה
-                            reviewsList.removeAt(position)
-                            reviewAdapter.notifyItemRemoved(position)
-                        }
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "Review not found or list is empty.", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    homeViewModel.deleteReviewById(reviewId)
                 }
-            }
-            ,
+            },
+
             onLikeClick = { review ->
                 homeViewModel.updateReviewLikeStatus(review)
             },
@@ -68,13 +61,18 @@ class MyReviewsFragment : Fragment() {
         recyclerView.adapter = reviewAdapter
 
         homeViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+            // לנקות תמיד את הרשימה המקומית
+            reviewsList.clear()
+
             if (reviews != null && reviews.isNotEmpty()) {
                 val userReviews = reviews.filter { it.userId == userId }
-                reviewsList.clear()
                 reviewsList.addAll(userReviews)
-                reviewAdapter.notifyDataSetChanged()
             }
+
+            // לעדכן את ה-RecyclerView בכל מקרה - גם אם זה רק מחיקה
+            reviewAdapter.notifyDataSetChanged()
         }
+
 
         homeViewModel.reloadAllReviews()
 
