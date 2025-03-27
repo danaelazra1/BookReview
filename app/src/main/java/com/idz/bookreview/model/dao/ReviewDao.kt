@@ -25,10 +25,6 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews WHERE userId = :userId ORDER BY timestamp DESC")
     suspend fun getReviewsByUser(userId: String): List<Review>
 
-
-    @Query("SELECT * FROM reviews WHERE isLiked = 1 ORDER BY timestamp DESC")
-    suspend fun getLikedReviews(): List<Review>
-
     @Query("SELECT * FROM reviews WHERE id = :id")
     suspend fun getReviewById(id: String): Review?  // פונקציה לשליפת ביקורת בודדת לפי ID
 

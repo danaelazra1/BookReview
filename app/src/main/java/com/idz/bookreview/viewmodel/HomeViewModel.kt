@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 class HomeViewModel(private val context: Context) : ViewModel() {
 
@@ -46,56 +47,80 @@ class HomeViewModel(private val context: Context) : ViewModel() {
     fun reloadAllReviews() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // טוען את כל הביקורות מ-ROOM
-                val reviewsFromRoom = reviewDao.getAllReviews().toMutableList()
-                _reviewsLiveData.postValue(reviewsFromRoom)
-
-                // טוען את הביקורות מ-Firestore
                 val snapshot = reviewsCollection.get().await()
                 val firestoreReviews = snapshot.toObjects(Review::class.java)
 
-                // שומר את סטטוס הלייק מ-ROOM
-                firestoreReviews.forEach { firestoreReview ->
-                    val localReview = reviewsFromRoom.find { it.id == firestoreReview.id }
-                    if (localReview != null) {
-                        firestoreReview.isLiked = localReview.isLiked  // שמירה על סטטוס הלייק
-                    }
+                if (firestoreReviews.isNotEmpty()) {
+                    Log.d("HomeViewModel", "Reviews loaded from Firestore successfully.")
+                    reviewDao.insertReviews(firestoreReviews)
+                    _reviewsLiveData.postValue(firestoreReviews.toMutableList())
+                } else {
+                    Log.e("HomeViewModel", "No reviews found in Firestore.")
                 }
-
-                // עדכון ה-ROOM עם הביקורות מ-Firestore
-                reviewDao.insertReviews(firestoreReviews)
-
-                // עדכון ה-LiveData עם הנתונים המעודכנים
-                _reviewsLiveData.postValue(reviewDao.getAllReviews().toMutableList())
-
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Failed to reload reviews: ${e.message}")
+                Log.e("HomeViewModel", "Failed to load reviews from Firestore. Loading from ROOM instead. Error: ${e.message}")
+
+                try {
+                    val reviewsFromRoom = reviewDao.getAllReviews().toMutableList()
+                    _reviewsLiveData.postValue(reviewsFromRoom)
+                } catch (roomError: Exception) {
+                    Log.e("HomeViewModel", "Failed to load reviews from ROOM: ${roomError.message}")
+                }
             }
         }
     }
-
 
     fun updateReviewLikeStatus(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // עדכון הסטטוס ב-ROOM
-                reviewDao.updateReview(review)
+                val userId = user?.uid ?: return@launch
+                Log.d("HomeViewModel", "🔍 User ID: $userId")
+                Log.d("HomeViewModel", "🔥 Current Likes: ${review.favoritedByUsers}")
 
-                // עדכון ב-Firestore
+                // שימוש ברשימה המעודכנת שהגיע מ-ReviewAdapter, בלי לשנות אותה כאן!
+                val updatedLikes = review.favoritedByUsers.toMutableList()
+
+                review.favoritedByUsers = updatedLikes
+                Log.d("HomeViewModel", "✅ Updated Review Object Before Sending to Firestore: $review")
+
+                val reviewData = hashMapOf(
+                    "id" to review.id,
+                    "userId" to review.userId,
+                    "userName" to review.userName,
+                    "title" to review.title,
+                    "author" to review.author,
+                    "review" to review.review,
+                    "imageUrl" to review.imageUrl,
+                    "timestamp" to review.timestamp,
+                    "favoritedByUsers" to ArrayList(review.favoritedByUsers)
+                )
+
+                Log.d("HomeViewModel", "📤 Data Being Sent to Firestore: $reviewData")
+
                 reviewsCollection.document(review.id)
-                    .update("isLiked", review.isLiked)
+                    .set(reviewData)
+                    .addOnSuccessListener {
+                        Log.d("HomeViewModel", "🔥 Firestore Updated Successfully for Review ID: ${review.id}")
+                        viewModelScope.launch(Dispatchers.IO) {
+                            try {
+                                Log.d("HomeViewModel", "📦 Review Updated Successfully in ROOM with favoritedByUsers: ${review.favoritedByUsers}")
+                            } catch (e: Exception) {
+                                Log.e("HomeViewModel", "❌ Error saving review to ROOM: ${e.message}")
+                            }
+                        }
+                    }
                     .addOnFailureListener { e ->
-                        Log.e("HomeViewModel", "Failed to update review in Firestore: ${e.message}")
+                        Log.e("HomeViewModel", "❌ Firestore Update Failed: ${e.message}")
                     }
 
-                // לאחר העדכון ב-ROOM וב-Firestore, עדכן את ה-LiveData
-                reloadAllReviews()
-
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Failed to update like status: ${e.message}")
+                Log.e("HomeViewModel", "❌ Error in updateReviewLikeStatus: ${e.message}")
             }
         }
     }
+
+
+
 
 
     fun syncReviewsFromFirestore() {

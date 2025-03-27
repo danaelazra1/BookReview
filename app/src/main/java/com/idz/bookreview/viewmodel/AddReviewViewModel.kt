@@ -1,8 +1,10 @@
+
 package com.idz.bookreview.viewmodel
 
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -43,6 +45,8 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+
+
     private suspend fun getUserNameFromFirestore(userEmail: String): String {
         var userName = "Unknown User"
         try {
@@ -77,38 +81,8 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
 
                         val response = CloudinaryService.api.uploadImage(part)
                         imageUrl = response.secureUrl
-                        println("✔️ Image uploaded successfully: $imageUrl")
                     } catch (e: Exception) {
-                        println("❌ Error uploading image to Cloudinary: ${e.message}")
-                    }
-                } else if (imageUri.scheme == "http" || imageUri.scheme == "https") {
-                    try {
-                        println("🔍 Trying to download image from URL: $imageUri")
-                        val connection = java.net.URL(imageUri.toString()).openConnection()
-                        connection.connectTimeout = 10000
-                        connection.readTimeout = 10000
-                        connection.doInput = true
-
-                        val inputStream = connection.getInputStream()
-                        if (inputStream != null) {
-                            val byteArray = inputStream.readBytes()
-                            inputStream.close()
-
-                            if (byteArray.isNotEmpty()) {
-                                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), byteArray)
-                                val part = MultipartBody.Part.createFormData("file", "image_from_api.jpg", requestBody)
-
-                                val response = CloudinaryService.api.uploadImage(part)
-                                imageUrl = response.secureUrl
-                                println("✔️ Image uploaded from URL successfully to Cloudinary: $imageUrl")
-                            } else {
-                                println("❌ The byte array is empty. Failed to download image data.")
-                            }
-                        } else {
-                            println("❌ Failed to open InputStream from URL.")
-                        }
-                    } catch (e: Exception) {
-                        println("❌ Error uploading image from URL to Cloudinary: ${e.message}")
+                        println("Error uploading image to Cloudinary: ${e.message}")
                     }
                 }
             }
@@ -124,7 +98,8 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 "author" to author,
                 "review" to review,
                 "imageUrl" to imageUrl,
-                "timestamp" to timestamp
+                "timestamp" to timestamp,
+                "favoritedByUsers" to ArrayList<String>()
             )
 
             // שמירה ב-Firestore
@@ -143,14 +118,16 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
                 author = author,
                 review = review,
                 imageUrl = imageUrl,
-                timestamp = timestamp
+                timestamp = timestamp,
+                favoritedByUsers = emptyList()
             )
+
 
             try {
                 reviewDao.insertReview(localReview)
-                println("✔️ Review successfully saved to Room Database!")
+                Log.d("AddReviewViewModel", "Review successfully saved to Room Database!")
             } catch (e: Exception) {
-                println("❌ Error saving review to Room Database: ${e.message}")
+                Log.e("AddReviewViewModel", "Error saving review to Room Database: ${e.message}")
             }
         }
     }
@@ -177,4 +154,3 @@ class AddReviewViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 }
-

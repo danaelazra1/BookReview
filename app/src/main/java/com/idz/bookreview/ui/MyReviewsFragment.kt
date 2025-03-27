@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -14,11 +15,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.idz.bookreview.R
 import com.idz.bookreview.adapter.ReviewAdapter
 import com.idz.bookreview.model.Review
-import com.idz.bookreview.viewmodel.ReviewViewModel
+import com.idz.bookreview.viewmodel.HomeViewModel
+import com.idz.bookreview.viewmodel.HomeViewModelFactory
+import kotlinx.coroutines.launch
 
 class MyReviewsFragment : Fragment() {
 
-    private lateinit var reviewViewModel: ReviewViewModel
+    private lateinit var homeViewModel: HomeViewModel
     private lateinit var recyclerView: RecyclerView
     private val reviewsList = mutableListOf<Review>()
     private lateinit var reviewAdapter: ReviewAdapter
@@ -33,7 +36,7 @@ class MyReviewsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        reviewViewModel = ViewModelProvider(this)[ReviewViewModel::class.java]
+        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(requireContext()))[HomeViewModel::class.java]
 
         reviewAdapter = ReviewAdapter(
             requireContext(),
@@ -44,20 +47,22 @@ class MyReviewsFragment : Fragment() {
             onDeleteClick = { reviewId ->
                 val position = reviewsList.indexOfFirst { it.id == reviewId }
                 if (position != -1) {
-                    reviewViewModel.deleteReview(reviewId, requireContext())
-                    reviewsList.removeAt(position)
-                    reviewAdapter.notifyItemRemoved(position)
+                    lifecycleScope.launch {
+                        homeViewModel.deleteReviewById(reviewId)
+                        reviewsList.removeAt(position)
+                        reviewAdapter.notifyItemRemoved(position)
+                    }
                 }
             },
             onLikeClick = { review ->
-                reviewViewModel.updateReviewLikeStatus(review)  // שולח את העדכון ל-ViewModel
+                homeViewModel.updateReviewLikeStatus(review)  // שולח את העדכון ל-HomeViewModel
             },
             sourceFragment = "MyReviewsFragment"
         )
 
         recyclerView.adapter = reviewAdapter
 
-        reviewViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+        homeViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
             if (reviews != null && reviews.isNotEmpty()) {
                 val userReviews = reviews.filter { it.userId == userId }
                 reviewsList.clear()
@@ -66,32 +71,8 @@ class MyReviewsFragment : Fragment() {
             }
         }
 
-        fetchUserReviews()  // טוען ביקורות משתמש מ-Firestore
+        homeViewModel.reloadAllReviews()  // טוען את כל הביקורות כולל אלו מהמשתמש המחובר
 
         return view
-    }
-
-    private fun fetchUserReviews() {
-        if (userId == null) return
-
-        db.collection("reviews")
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { documents ->
-                val newList = mutableListOf<Review>()
-                for (document in documents) {
-                    val review = document.toObject(Review::class.java).copy(id = document.id)
-                    if (review != null) newList.add(review)
-                }
-
-                if (newList.isNotEmpty()) {
-                    reviewsList.clear()
-                    reviewsList.addAll(newList)
-                    reviewAdapter.notifyDataSetChanged()
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load reviews", Toast.LENGTH_SHORT).show()
-            }
     }
 }

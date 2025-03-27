@@ -2,6 +2,7 @@ package com.idz.bookreview.adapter
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,33 +59,38 @@ class ReviewAdapter(
             }
 
             if (sourceFragment == "MyReviewsFragment") {
-                // אם אנחנו בדף "MyReviewsFragment", הסתר את אייקון הלייק
                 likeIcon.visibility = View.GONE
             } else {
-                // אם אנחנו לא בדף "MyReviewsFragment", הצג את אייקון הלייק
                 likeIcon.visibility = View.VISIBLE
 
-                // 🔥 הגדרת האייקון לפי מצב הלייק
-                if (review.isLiked) {
+                if (review.favoritedByUsers.contains(currentUserId)) {
                     likeIcon.setImageResource(R.drawable.ic_heart_filled)
                 } else {
                     likeIcon.setImageResource(R.drawable.ic_heart_outline)
                 }
 
-                // עדכון ה-UI של הלייק כאשר יש לחיצה עליו
                 likeIcon.setOnClickListener {
-                    review.isLiked = !review.isLiked  // שינוי מצב הלייק
-                    // עדכון מיידי של האייקון כדי לראות את השינוי ב-UI
-                    if (review.isLiked) {
-                        likeIcon.setImageResource(R.drawable.ic_heart_filled)
-                    } else {
-                        likeIcon.setImageResource(R.drawable.ic_heart_outline)
+                    if (currentUserId != null) {
+                        Log.d("ReviewAdapter", "🖱️ Like Icon Clicked for Review ID: ${review.id}")
+
+                        val updatedLikes = review.favoritedByUsers.toMutableList()
+
+                        if (updatedLikes.contains(currentUserId)) {
+                            updatedLikes.remove(currentUserId)
+                            likeIcon.setImageResource(R.drawable.ic_heart_outline)
+                            Log.d("ReviewAdapter", "💔 Like Removed Locally for Review: ${review.id}")
+                        } else {
+                            updatedLikes.add(currentUserId)
+                            likeIcon.setImageResource(R.drawable.ic_heart_filled)
+                            Log.d("ReviewAdapter", "❤️ Like Added Locally for Review: ${review.id}")
+                        }
+
+                        review.favoritedByUsers = updatedLikes
+                        onLikeClick(review)
                     }
-                    onLikeClick(review)  // שולח את העדכון ל-ViewModel
                 }
             }
 
-            // בדיקה אם אנחנו בדף "MyReviewsFragment" ומציגים רק את האייקונים של העריכה והמחיקה
             if (sourceFragment == "MyReviewsFragment" && review.userId == currentUserId) {
                 editIcon.visibility = View.VISIBLE
                 deleteIcon.visibility = View.VISIBLE
@@ -112,24 +118,7 @@ class ReviewAdapter(
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
         val review = reviews[position]
         holder.bind(review)
-
-        holder.likeIcon.setOnClickListener {
-            review.isLiked = !review.isLiked  // שינוי מצב הלייק
-
-            // עדכון מיידי של האייקון כדי לראות את השינוי ב-UI
-            if (review.isLiked) {
-                holder.likeIcon.setImageResource(R.drawable.ic_heart_filled)
-            } else {
-                holder.likeIcon.setImageResource(R.drawable.ic_heart_outline)
-            }
-
-            // 🔥 עדכון ה-ViewModel עם המידע החדש
-            onLikeClick(review)
-        }
     }
-
-
-
 
     override fun getItemCount(): Int = reviews.size
 }

@@ -4,14 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.idz.bookreview.model.Converters
 import com.idz.bookreview.model.User
 import com.idz.bookreview.model.Review
 
-@Database(entities = [User::class, Review::class], version = 7, exportSchema = false)
+@Database(entities = [User::class, Review::class], version = 9, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-
     abstract fun userDao(): UserDao
     abstract fun reviewDao(): ReviewDao
 
@@ -26,7 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "book_review_database"
                 )
-                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -34,25 +36,48 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_3_4 = object : Migration(3, 4) {
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 try {
-                    db.execSQL("ALTER TABLE reviews ADD COLUMN userName TEXT NOT NULL DEFAULT ''")
-                    db.execSQL("ALTER TABLE reviews ADD COLUMN imageUrl TEXT")
+                    db.execSQL("ALTER TABLE reviews ADD COLUMN likes TEXT NOT NULL DEFAULT '[]'")
                 } catch (e: Exception) {
-                    println("Columns already exist, skipping migration.")
+                    println("Column 'likes' already exists, skipping migration.")
                 }
             }
         }
 
-        private val MIGRATION_4_5 = object : Migration(4, 5) {
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 try {
-                    db.execSQL("ALTER TABLE reviews ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
-                    db.execSQL("ALTER TABLE reviews ADD COLUMN userName TEXT NOT NULL DEFAULT ''")
-                    db.execSQL("ALTER TABLE reviews ADD COLUMN imageUrl TEXT")
+                    // מחיקה של העמודה הישנה 'likes' אם קיימת
+                    db.execSQL("ALTER TABLE reviews RENAME TO reviews_old;")
+
+                    // יצירת טבלה חדשה עם העמודה favoritedByUsers במקום likes
+                    db.execSQL("""
+                        CREATE TABLE reviews (
+                            id TEXT PRIMARY KEY NOT NULL,
+                            userId TEXT NOT NULL,
+                            userName TEXT NOT NULL,
+                            title TEXT NOT NULL,
+                            author TEXT NOT NULL,
+                            review TEXT NOT NULL,
+                            imageUrl TEXT,
+                            timestamp INTEGER NOT NULL,
+                            favoritedByUsers TEXT NOT NULL DEFAULT '[]'
+                        )
+                    """.trimIndent())
+
+                    // העברת המידע מהטבלה הישנה לחדשה
+                    db.execSQL("""
+                        INSERT INTO reviews (id, userId, userName, title, author, review, imageUrl, timestamp, favoritedByUsers)
+                        SELECT id, userId, userName, title, author, review, imageUrl, timestamp, '[]'
+                        FROM reviews_old
+                    """.trimIndent())
+
+                    // מחיקת הטבלה הישנה
+                    db.execSQL("DROP TABLE reviews_old;")
                 } catch (e: Exception) {
-                    println("Columns already exist, skipping migration.")
+                    println("Error during migration from version 8 to 9: ${e.message}")
                 }
             }
         }

@@ -11,14 +11,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.idz.bookreview.R
 import com.idz.bookreview.adapter.ReviewAdapter
 import com.idz.bookreview.model.Review
-import com.idz.bookreview.viewmodel.ReviewViewModel
+import com.idz.bookreview.viewmodel.HomeViewModel
+import com.idz.bookreview.viewmodel.HomeViewModelFactory
+import com.google.firebase.auth.FirebaseAuth
 
 class LikedReviewsFragment : Fragment() {
 
-    private lateinit var reviewViewModel: ReviewViewModel
+    private lateinit var homeViewModel: HomeViewModel
     private lateinit var recyclerView: RecyclerView
     private val likedReviewsList = mutableListOf<Review>()
     private lateinit var reviewAdapter: ReviewAdapter
+    private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,31 +31,38 @@ class LikedReviewsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        reviewViewModel = ViewModelProvider(this)[ReviewViewModel::class.java]
+        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(requireContext()))[HomeViewModel::class.java]
 
         reviewAdapter = ReviewAdapter(
             requireContext(),
             likedReviewsList,
-            onEditClick = {},   // ביקורות לייק לא ניתן לערוך
-            onDeleteClick = {},  // ביקורות לייק לא ניתן למחוק
+            onEditClick = {},
+            onDeleteClick = {},
             onLikeClick = { review ->
-                review.isLiked = false
-                reviewViewModel.updateReviewLikeStatus(review)
-                removeReviewFromList(review)
+                currentUserId?.let { userId ->
+                    val updatedLikes = review.favoritedByUsers.toMutableList()
+                    updatedLikes.remove(userId)
+                    val updatedReview = review.copy(favoritedByUsers = updatedLikes)
+
+                    homeViewModel.updateReviewLikeStatus(updatedReview)
+                    removeReviewFromList(updatedReview)
+                }
             },
             sourceFragment = "LikedReviewsFragment"
         )
 
         recyclerView.adapter = reviewAdapter
 
-        reviewViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
-            val likedReviews = reviews.filter { it.isLiked }
-            likedReviewsList.clear()
-            likedReviewsList.addAll(likedReviews)
-            reviewAdapter.notifyDataSetChanged()
+        homeViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+            currentUserId?.let { userId ->
+                val likedReviews = reviews.filter { it.favoritedByUsers.contains(userId) }
+                likedReviewsList.clear()
+                likedReviewsList.addAll(likedReviews)
+                reviewAdapter.notifyDataSetChanged()
+            }
         }
 
-        reviewViewModel.reloadAllReviews()
+        homeViewModel.reloadAllReviews()
 
         return view
     }

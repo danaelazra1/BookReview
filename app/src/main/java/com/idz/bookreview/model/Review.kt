@@ -2,6 +2,7 @@ package com.idz.bookreview.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 
 
 @Entity(tableName = "reviews")
@@ -14,6 +15,9 @@ data class Review(
     val review: String = "",
     var imageUrl: String? = null,
     val timestamp: Long = 0L,
-    var isLiked: Boolean = false  // שדה חדש שמייצג האם הפוסט מסומן כאהוב או לא
+    @TypeConverters(Converters::class)
+    var favoritedByUsers: List<String> = emptyList()
+) {
+    constructor() : this("", "", "", "", "", "", null, 0L, emptyList())
+}
 
-)

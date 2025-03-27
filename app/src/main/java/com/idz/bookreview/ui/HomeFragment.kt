@@ -58,17 +58,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         recyclerView.adapter = adapter
 
-        viewModel.reloadAllReviews()  // 🔥 טוען את כל הביקורות מכל המקורות (Firestore ו-ROOM)
+        // נטען את כל הביקורות מ-Firestore ומ-ROOM
+        viewModel.reloadAllReviews()
 
         // הוספת observer ל-LiveData
         viewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
             if (reviews.isNotEmpty()) {
-                adapter.updateReviews(reviews) // עדכון המידע בתצוגה
+                adapter.updateReviews(reviews) // עדכון התצוגה עם המידע החדש
             } else {
-                Toast.makeText(requireContext(), "No internet connection - data from ROOM", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No reviews found. Please add a review.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
 
 
