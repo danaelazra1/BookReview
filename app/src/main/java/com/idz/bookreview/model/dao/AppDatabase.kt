@@ -49,7 +49,6 @@ abstract class AppDatabase : RoomDatabase() {
         private val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 try {
-                    // מחיקה של העמודה הישנה 'likes' אם קיימת
                     db.execSQL("ALTER TABLE reviews RENAME TO reviews_old;")
 
                     db.execSQL("""

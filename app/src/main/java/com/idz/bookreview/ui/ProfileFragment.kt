@@ -253,7 +253,6 @@ class ProfileFragment : Fragment() {
                 cameraIcon.visibility = View.GONE
                 deleteImageButton.visibility = View.VISIBLE
 
-                // עדכון ה- Room Database
                 lifecycleScope.launch(Dispatchers.IO) {
                     val user = appDatabase.userDao().getUserById(userId)
                     if (user != null) {

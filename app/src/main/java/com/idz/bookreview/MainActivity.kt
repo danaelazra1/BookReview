@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
         setSupportActionBar(toolbar)
 
-        supportActionBar?.title = "Read, Review, Repeat.."  // הכיתוב שאתה רוצה שיוצג
+        supportActionBar?.title = "Read, Review, Repeat.."
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController

@@ -61,7 +61,6 @@ class MyReviewsFragment : Fragment() {
         recyclerView.adapter = reviewAdapter
 
         homeViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
-            // לנקות תמיד את הרשימה המקומית
             reviewsList.clear()
 
             if (reviews != null && reviews.isNotEmpty()) {
@@ -69,7 +68,6 @@ class MyReviewsFragment : Fragment() {
                 reviewsList.addAll(userReviews)
             }
 
-            // לעדכן את ה-RecyclerView בכל מקרה - גם אם זה רק מחיקה
             reviewAdapter.notifyDataSetChanged()
         }
 
