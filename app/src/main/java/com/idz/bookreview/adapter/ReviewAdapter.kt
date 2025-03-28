@@ -45,6 +45,7 @@ class ReviewAdapter(
         val deleteIcon: ImageView = itemView.findViewById(R.id.ic_trash)
         val likeIcon: ImageView = itemView.findViewById(R.id.likeIcon)
 
+
         fun bind(review: Review) {
             userNameTextView.text = review.userName
             bookTitleTextView.text = review.title
@@ -107,6 +108,7 @@ class ReviewAdapter(
                 editIcon.visibility = View.GONE
                 deleteIcon.visibility = View.GONE
             }
+            
         }
     }
 

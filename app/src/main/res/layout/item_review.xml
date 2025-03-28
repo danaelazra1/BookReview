@@ -20,12 +20,12 @@
 
         <ImageView
             android:id="@+id/bookImageView"
-            android:layout_width="100dp"
-            android:layout_height="130dp"
+            android:layout_width="130dp"
+            android:layout_height="150dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_default_book"
-        android:layout_marginEnd="8dp"/>
+        android:layout_marginEnd="2dp"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -37,7 +37,7 @@
                 android:id="@+id/userNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textColor="#4B2C20"
                 android:textStyle="bold"/>
 
@@ -52,26 +52,26 @@
                 android:id="@+id/bookTitleTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="#D2691E"
+                android:textSize="15sp"
+                android:textColor="#DB6702"
                 android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/bookAuthorTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textColor="#000000"/>
 
             <TextView
                 android:id="@+id/reviewTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
-            android:ellipsize="end"
-            android:textSize="15sp"
-            android:lineSpacingExtra="6dp"
-            android:textColor="#000000"/>
+                android:maxLines="5"
+                android:ellipsize="end"
+                android:textSize="14sp"
+                android:lineSpacingExtra="1dp"
+                android:textColor="#000000"/>
         </LinearLayout>
 
         <LinearLayout
